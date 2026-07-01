@@ -1,99 +1,429 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-level="yuan">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QoS 文件生成器</title>
+    <title>QoS 审查卡片生成器</title>
     <style>
+        :root {
+            /* 借鉴参考图：暖米白底 + 苔藓绿 + 焦糖橘，少量深炭墨压住全局 */
+            --bg: #f1ece1;
+            --bg-grain: rgba(46, 40, 30, 0.025);
+            --surface: rgba(255, 253, 248, 0.96);
+            --surface-solid: #fbf8f1;
+            --surface-soft: #f6f1e6;
+            --text: #1f1c17;
+            --muted: rgba(31, 28, 23, 0.62);
+            --muted-soft: rgba(31, 28, 23, 0.42);
+            --border: rgba(46, 40, 30, 0.10);
+            --border-strong: rgba(46, 40, 30, 0.18);
+
+            /* 基础两色（复用为卡片点缀 / 暗色元素） */
+            --ink: #2c2820;             /* 深炭墨：标题、按钮主色 */
+            --moss: #5d6a4c;            /* 苔藓绿：主强调色 */
+            --moss-deep: #44513a;
+            --caramel: #c98642;         /* 焦糖橘：点缀（对应图中那根橙色） */
+            --caramel-deep: #a76a30;
+
+            /* 三级（克制但可识别）：所级=苔藓绿 / 院级=深青墨 / 公司级=焦糖棕 */
+            --level-suoshi-rgb: 93 106 76;        /* moss */
+            --level-suoshi-deep-rgb: 68 81 58;
+            --level-yuan-rgb: 47 78 86;           /* 深青墨 */
+            --level-yuan-deep-rgb: 30 60 68;
+            --level-gongsi-rgb: 124 86 56;        /* 焦糖棕 */
+            --level-gongsi-deep-rgb: 92 62 38;
+            --level-accent-2-rgb: 201 134 66;     /* caramel */
+
+            --level-accent-rgb: var(--level-yuan-rgb);
+            --level-accent-deep-rgb: var(--level-yuan-deep-rgb);
+            --level-accent: rgb(var(--level-accent-rgb));
+            --level-accent-deep: rgb(var(--level-accent-deep-rgb));
+            --level-accent-2: rgb(var(--level-accent-2-rgb));
+            --focus: rgb(var(--level-accent-rgb) / 0.20);
+            --shadow: 0 30px 80px rgba(46, 40, 30, 0.12);
+            --shadow-soft: 0 16px 44px rgba(46, 40, 30, 0.08);
+            --radius: 20px;
+            --radius-sm: 14px;
+        }
+
+        :root[data-level="suoshi"] {
+            --level-accent-rgb: var(--level-suoshi-rgb);
+            --level-accent-deep-rgb: var(--level-suoshi-deep-rgb);
+        }
+
+        :root[data-level="yuan"] {
+            --level-accent-rgb: var(--level-yuan-rgb);
+            --level-accent-deep-rgb: var(--level-yuan-deep-rgb);
+        }
+
+        :root[data-level="gongsi"] {
+            --level-accent-rgb: var(--level-gongsi-rgb);
+            --level-accent-deep-rgb: var(--level-gongsi-deep-rgb);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body { height: 100%; }
+
         body {
-            font-family: "Microsoft YaHei", "PingFang SC", -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh; padding: 20px;
+            font-family: "Source Han Sans SC", "HarmonyOS Sans SC", "MiSans", "PingFang SC", "Microsoft YaHei UI", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            min-height: 100vh;
+            padding: 28px;
         }
+
         .container {
-            max-width: 900px; margin: 0 auto; background: #fff;
-            border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); overflow: hidden;
+            max-width: 980px;
+            margin: 0 auto;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
         }
+
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #fff; padding: 30px 40px; text-align: center;
+            padding: 28px 36px 20px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+            text-align: left;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
         }
-        .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
-        .header p { font-size: 14px; opacity: 0.85; }
-        .body { padding: 40px; }
-        .section { margin-bottom: 32px; }
+
+        .header h1 {
+            font-size: 24px;
+            letter-spacing: 0.4px;
+            font-weight: 720;
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header h1::before {
+            content: "";
+            width: 12px;
+            height: 12px;
+            border-radius: 999px;
+            background: var(--moss);
+            box-shadow: 0 10px 22px rgba(93, 106, 76, 0.30);
+        }
+
+        .header p {
+            margin-top: 6px;
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.65;
+        }
+
+        .body { padding: 28px 36px 34px; }
+
+        .section {
+            position: relative;
+            margin-bottom: 18px;
+            padding: 20px 20px 6px;
+            background: var(--surface-solid);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: 0 12px 34px rgba(46, 40, 30, 0.06);
+            animation: liftIn 420ms ease both;
+            --section-accent-rgb: var(--level-accent-rgb);
+            --section-accent-2-rgb: var(--level-accent-2-rgb);
+        }
+
+        .section::after {
+            /* 极克制的左侧 3px 标识条，跟随 section 强调色（单色） */
+            content: "";
+            position: absolute;
+            left: 10px;
+            top: 18px;
+            bottom: 18px;
+            width: 3px;
+            border-radius: 999px;
+            background: rgb(var(--section-accent-rgb) / 0.85);
+            opacity: 0.6;
+        }
+
+        #section_suoshi {
+            --section-accent-rgb: var(--level-suoshi-rgb);
+            --section-accent-2-rgb: var(--level-accent-2-rgb);
+            border-color: rgb(var(--level-suoshi-rgb) / 0.22);
+            box-shadow: 0 14px 38px rgb(var(--level-suoshi-rgb) / 0.10);
+            background: var(--surface-solid);
+        }
+
+        #section_yuan.visible {
+            --section-accent-rgb: var(--level-yuan-rgb);
+            --section-accent-2-rgb: var(--level-accent-2-rgb);
+            border-color: rgb(var(--level-yuan-rgb) / 0.28);
+            box-shadow: 0 14px 38px rgb(var(--level-yuan-rgb) / 0.12);
+            background: var(--surface-solid);
+        }
+
+        #section_gongsi.visible {
+            --section-accent-rgb: var(--level-gongsi-rgb);
+            --section-accent-2-rgb: var(--level-accent-2-rgb);
+            border-color: rgb(var(--level-gongsi-rgb) / 0.30);
+            box-shadow: 0 14px 38px rgb(var(--level-gongsi-rgb) / 0.12);
+            background: var(--surface-solid);
+        }
+
+        .section:nth-of-type(2) { animation-delay: 60ms; }
+        .section:nth-of-type(3) { animation-delay: 110ms; }
+        .section:nth-of-type(4) { animation-delay: 160ms; }
+        .section:nth-of-type(5) { animation-delay: 210ms; }
+
+        @keyframes liftIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .section-title {
-            font-size: 18px; font-weight: 600; color: #333; margin-bottom: 16px;
-            padding-left: 12px; border-left: 4px solid #667eea;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: 0.3px;
         }
-        .form-group { margin-bottom: 20px; }
+
+        .section-title::before {
+            content: "";
+            width: 14px;
+            height: 2px;
+            border-radius: 999px;
+            background: rgb(var(--section-accent-rgb) / 0.85);
+            opacity: 0.9;
+        }
+
+        .form-group { margin-bottom: 14px; }
+
         .form-group label {
-            display: block; font-size: 14px; font-weight: 500; color: #555; margin-bottom: 6px;
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(31, 28, 23, 0.72);
+            margin-bottom: 8px;
         }
-        .form-group label .required { color: #e74c3c; margin-left: 2px; }
+
+        .form-group label .required { color: var(--caramel); margin-left: 2px; }
+
         .form-group input[type="text"],
         .form-group textarea {
-            width: 100%; padding: 10px 14px; border: 2px solid #e0e0e0;
-            border-radius: 8px; font-size: 14px; font-family: inherit;
-            transition: border-color 0.2s, box-shadow 0.2s; background: #fafafa;
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-family: inherit;
+            background: var(--surface-soft);
+            color: var(--text);
+            transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
         }
+
+        .form-group input[type="text"]::placeholder,
+        .form-group textarea::placeholder { color: var(--muted-soft); }
+
         .form-group input[type="text"]:focus,
         .form-group textarea:focus {
-            outline: none; border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.15); background: #fff;
+            outline: none;
+            border-color: rgb(var(--level-accent-rgb) / 0.60);
+            box-shadow: 0 0 0 4px var(--focus);
+            background: var(--surface-solid);
         }
+
+        .form-group input[type="text"]:focus-visible,
+        .form-group textarea:focus-visible {
+            outline: 2px solid transparent;
+        }
+
         .form-group textarea {
-            min-height: 100px; resize: vertical; line-height: 1.8;
+            min-height: 108px;
+            resize: vertical;
+            line-height: 1.8;
         }
+
+        #audit_suoshi_text,
+        #audit_yuan_text,
+        #audit_gongsi_text {
+            --tone-rgb: var(--level-accent-rgb);
+            --tone-2-rgb: var(--level-accent-2-rgb);
+            border-color: rgb(var(--tone-rgb) / 0.22);
+            background: rgb(var(--tone-rgb) / 0.06);
+        }
+
+        #audit_suoshi_text { --tone-rgb: var(--level-suoshi-rgb); }
+        #audit_yuan_text { --tone-rgb: var(--level-yuan-rgb); }
+        #audit_gongsi_text { --tone-rgb: var(--level-gongsi-rgb); }
+
+        #audit_suoshi_text:focus,
+        #audit_yuan_text:focus,
+        #audit_gongsi_text:focus {
+            border-color: rgb(var(--tone-rgb) / 0.60);
+            box-shadow: 0 0 0 4px rgb(var(--tone-rgb) / 0.18);
+            background: var(--surface-solid);
+        }
+
         .form-group .hint {
-            font-size: 12px; color: #999; margin-top: 4px;
+            font-size: 12px;
+            color: var(--muted-soft);
+            margin-top: 6px;
         }
-        .form-row { display: flex; gap: 20px; }
+
+        .form-row { display: flex; gap: 16px; align-items: flex-start; }
         .form-row .form-group { flex: 1; }
 
-        .btn-generate {
-            width: 100%; padding: 16px; font-size: 18px; font-weight: 600;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #fff; border: none; border-radius: 12px; cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+        .radio-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
         }
-        .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(102,126,234,0.4); }
-        .btn-generate:active { transform: translateY(0); }
-        .btn-generate:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-        .status {
-            margin-top: 20px; padding: 14px 18px; border-radius: 8px; font-size: 14px; display: none;
+        .radio-item {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
         }
-        .status.success { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; display: block; }
-        .status.error { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; display: block; }
-        .status.loading { background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; display: block; }
-        .footer { text-align: center; padding: 20px; color: #999; font-size: 12px; }
 
-        .radio-group { display: flex; gap: 24px; align-items: center; }
-        .radio-item { display: flex; align-items: center; gap: 6px; cursor: pointer; }
-        .radio-item input[type="radio"] { width: 18px; height: 18px; accent-color: #667eea; }
-        .radio-item label { margin: 0; cursor: pointer; user-select: none; font-size: 14px; }
+        .radio-item input[type="radio"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .radio-item label {
+            margin: 0;
+            cursor: pointer;
+            user-select: none;
+            font-size: 13px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--surface-soft);
+            color: rgba(31, 28, 23, 0.72);
+            transition: transform 0.14s ease, background-color 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+        }
+
+        .radio-item input[type="radio"]:checked + label {
+            border-color: rgb(var(--level-accent-rgb) / 0.55);
+            background: rgb(var(--level-accent-rgb) / 0.10);
+            color: var(--ink);
+            box-shadow: 0 10px 26px rgb(var(--level-accent-rgb) / 0.18);
+        }
+
+        .radio-item input[type="radio"]:focus-visible + label {
+            box-shadow: 0 0 0 4px var(--focus);
+        }
 
         .level-hint {
-            margin-top: 8px; padding: 8px 12px; background: #f0f4ff;
-            border-radius: 6px; font-size: 12px; color: #5566cc;
+            margin-top: 10px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgb(var(--level-accent-rgb) / 0.07);
+            border: 1px solid rgb(var(--level-accent-rgb) / 0.22);
+            border-radius: 12px;
+            font-size: 12px;
+            color: rgba(31, 28, 23, 0.72);
         }
 
-        /* 动态显示/隐藏区域 */
-        .conditional-section {
-            display: none;
-            transition: opacity 0.3s;
+        .level-hint::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: var(--moss);
+            box-shadow: 0 10px 18px rgba(93, 106, 76, 0.20);
         }
-        .conditional-section.visible {
+
+        .btn-generate {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 16px;
+            font-weight: 720;
+            letter-spacing: 0.4px;
+            border: 1px solid rgb(var(--level-accent-deep-rgb) / 0.40);
+            border-radius: 16px;
+            cursor: pointer;
+            color: rgba(255, 253, 248, 0.98);
+            background: rgb(var(--level-accent-rgb));
+            box-shadow: 0 18px 40px rgb(var(--level-accent-rgb) / 0.24);
+            transition: transform 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease;
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 22px 46px rgb(var(--level-accent-rgb) / 0.30);
+            filter: brightness(1.04);
+        }
+
+        .btn-generate:active { transform: translateY(0); filter: brightness(0.96); }
+        .btn-generate:disabled { opacity: 0.62; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .status {
+            margin-top: 16px;
+            padding: 12px 12px;
+            border-radius: 14px;
+            font-size: 13px;
+            display: none;
+            border: 1px solid transparent;
+        }
+
+        .status.success {
+            background: rgb(var(--level-accent-rgb) / 0.07);
+            color: rgba(31, 28, 23, 0.86);
+            border-color: rgb(var(--level-accent-rgb) / 0.22);
             display: block;
+        }
+
+        .status.error {
+            background: rgba(201, 134, 66, 0.10);
+            color: rgba(31, 28, 23, 0.88);
+            border-color: rgba(201, 134, 66, 0.30);
+            display: block;
+        }
+
+        .status.loading {
+            background: rgba(31, 28, 23, 0.05);
+            color: rgba(31, 28, 23, 0.82);
+            border-color: rgba(31, 28, 23, 0.16);
+            display: block;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 18px;
+            color: rgba(31, 28, 23, 0.46);
+            font-size: 12px;
+        }
+
+        .conditional-section { display: none; }
+        .conditional-section.visible { display: block; }
+
+        /* 响应式：去掉左侧标识条，避免与表单重叠 */
+        @media (max-width: 760px) {
+            body { padding: 14px; }
+            .header { padding: 22px 18px 16px; }
+            .body { padding: 18px 18px 22px; }
+            .form-row { flex-direction: column; gap: 12px; }
+            .section { padding-left: 16px; }
+            .section::after { left: 6px; top: 14px; bottom: 14px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>QoS 文件生成器</h1>
+            <h1>QoS 审查卡片生成器</h1>
             <p>填写项目信息，一键生成设计复核/审查卡片 docx 文件</p>
         </div>
 
@@ -158,7 +488,7 @@
             </div>
 
             <!-- 所室级审查意见（始终显示） -->
-            <div class="section">
+            <div class="section" id="section_suoshi">
                 <div class="section-title">所室级审查意见（设表09-1）</div>
                 <div class="form-group">
                     <label>审查意见内容</label>
@@ -195,7 +525,7 @@
             <div class="status" id="status"></div>
         </div>
 
-        <div class="footer">QoS 文件生成器 · 中铁二院通信</div>
+        <div class="footer">QoS 审查卡片生成器 · 中铁二院通信</div>
     </div>
 
     <script>
@@ -209,6 +539,8 @@
         function updateLevelVisibility() {
             const level = document.querySelector('input[name="final_level"]:checked').value;
             document.getElementById('level_hint').textContent = levelHints[level];
+            const theme = level === '所级' ? 'suoshi' : (level === '公司级' ? 'gongsi' : 'yuan');
+            document.documentElement.dataset.level = theme;
 
             // 所室级始终显示
             // 院级：>=院级 时显示

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-QoS 文件生成器 - Web 应用
+QoS 审查卡片生成器 - Web 应用
 基于 Flask 的单页 Web 应用，使用预定义模板（含 [[占位符]]）生成 QoS docx 文件。
 终审级别控制表格截止范围：所级(表1-3) / 院级(表1-4) / 公司级(表1-5)。
 """
@@ -11,6 +11,9 @@ import io
 from flask import Flask, request, jsonify, send_file, render_template
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+app.jinja_env.auto_reload = True
 
 TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates_docx')
 TEMPLATE_FILE = 'QoS模板.docx'
@@ -308,7 +311,7 @@ def api_generate():
 if __name__ == '__main__':
     os.makedirs(TEMPLATE_DIR, exist_ok=True)
     print("=" * 50)
-    print("QoS 文件生成器")
+    print("QoS 审查卡片生成器")
     print("=" * 50)
     print(f"模板文件: {TEMPLATE_FILE}")
     print(f"模板目录: {TEMPLATE_DIR}")
