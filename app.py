@@ -309,12 +309,14 @@ def api_generate():
 
 
 if __name__ == '__main__':
+    # Vercel/容器部署：通过 PORT 环境变量注入端口；本地默认 5000
+    port = int(os.environ.get('PORT', 5000))
     os.makedirs(TEMPLATE_DIR, exist_ok=True)
     print("=" * 50)
     print("QoS 审查卡片生成器")
     print("=" * 50)
     print(f"模板文件: {TEMPLATE_FILE}")
     print(f"模板目录: {TEMPLATE_DIR}")
-    print(f"访问地址: http://localhost:5000")
+    print(f"访问地址: http://localhost:{port}")
     print("=" * 50)
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=port, debug=False)
