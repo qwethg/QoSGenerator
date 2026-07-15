@@ -71,6 +71,21 @@ class NewProfessionsTemplateTest(unittest.TestCase):
         self.assertNotIn('四、桥梁专业', headings)
         self.assertNotIn('八、车辆', headings)
 
+    def test_station_front_bridge_video_flag_is_read_from_nested_group(self):
+        """站前基础信息：桥梁疏散通道视频标志从 station_front 分组读取"""
+        data = {
+            "project_name": "站前基础信息测试",
+            "has_qiaoliang": True,
+            "station_front": {
+                "has_qlsstdsp": True
+            }
+        }
+
+        output, error = generate_cross_data_docx(data)
+
+        self.assertIsNone(error, msg=error)
+        self.assertIsNotNone(output)
+
 
 if __name__ == "__main__":
     unittest.main()

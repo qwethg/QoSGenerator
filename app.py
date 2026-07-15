@@ -410,6 +410,12 @@ def generate_cross_data_docx(data):
             chapter_flags['has_zhanchang']
         )
 
+        # 站前基础信息分组映射
+        station_front = data.get('station_front', {}) or {}
+        station_front_flags = {
+            'has_qlsstdsp': safe_bool(station_front.get('has_qlsstdsp', False)),
+        }
+
         # 兼容旧版前端字段名
         if 'has_fj' in data:
             chapter_flags['has_fangjian'] = safe_bool(data['has_fj'])
@@ -448,6 +454,7 @@ def generate_cross_data_docx(data):
             'source_profession': data.get('source_profession', '有线通信'),
         }
         context.update(chapter_flags)
+        context.update(station_front_flags)
         context.update(cable_trench)
 
         # 7. 映射每个房屋的变量
