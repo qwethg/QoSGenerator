@@ -52,7 +52,7 @@ export default {
             source_institute: '通号院',
             source_profession: '有线通信',
 
-            // 专业章节开关（8 个专业）
+            // 专业章节开关（12 个专业）
             has_fangjian: true,
             has_dianli: true,
             has_nuantong: true,
@@ -61,6 +61,10 @@ export default {
             has_wuxian: true,
             has_jixie: true,
             has_cheliang: true,
+            has_luji: true,
+            has_suidao: true,
+            has_qiaoliang: true,
+            has_zhanchang: true,
 
             // 房屋类型配置
             rooms: createDefaultRooms(),
@@ -198,6 +202,22 @@ export default {
                 </div>
                 <div class="card-body">
                     <div class="grid grid-cols-4 gap-3">
+                        <label class="profession-checkbox" :class="{ 'active': formData.has_luji }">
+                            <input v-model="formData.has_luji" type="checkbox">
+                            <span>提路基专业</span>
+                        </label>
+                        <label class="profession-checkbox" :class="{ 'active': formData.has_suidao }">
+                            <input v-model="formData.has_suidao" type="checkbox">
+                            <span>提隧道专业</span>
+                        </label>
+                        <label class="profession-checkbox" :class="{ 'active': formData.has_qiaoliang }">
+                            <input v-model="formData.has_qiaoliang" type="checkbox">
+                            <span>提桥梁专业</span>
+                        </label>
+                        <label class="profession-checkbox" :class="{ 'active': formData.has_zhanchang }">
+                            <input v-model="formData.has_zhanchang" type="checkbox">
+                            <span>提站场专业</span>
+                        </label>
                         <label class="profession-checkbox" :class="{ 'active': formData.has_fangjian }">
                             <input v-model="formData.has_fangjian" type="checkbox">
                             <span>提房建专业</span>

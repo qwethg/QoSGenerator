@@ -5,8 +5,10 @@ QoS 审查卡片生成器 - Web 应用
 """
 import os
 import io
+import re
 from flask import Flask, request, jsonify, send_file, render_template
 from docxtpl import DocxTemplate
+from docx import Document
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 app.config['TEMPLATES_AUTO_RELOAD'] = True
@@ -17,7 +19,32 @@ TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templat
 TEMPLATE_FILE = 'QoS模板.docx'
 
 # 互提资料 - 固定模板
-CROSS_TEMPLATE_FILE = '互提资料模板-施工图-有线通信提站后.docx'
+CROSS_TEMPLATE_FILE = '互提资料模板-施工图-有线通信提站后-修复版.docx'
+CROSS_TEMPLATE_FALLBACK_FILES = [
+    '互提资料模板-施工图-有线通信提站后.docx',
+    '互提资料模板-施工图-有线通信提站后 - 副本.docx',
+]
+
+CHAPTER_TITLE_ORDER = [
+    ('has_common', '通用要求'),
+    ('has_luji', '路基专业'),
+    ('has_suidao', '隧道专业'),
+    ('has_qiaoliang', '桥梁专业'),
+    ('has_zhanchang', '站场专业'),
+    ('has_fangjian', '房建'),
+    ('has_dianli', '电力'),
+    ('has_nuantong', '暖通'),
+    ('has_qianyin', '牵引变电'),
+    ('has_jiechuwang', '接触网'),
+    ('has_wuxian', '无线通信'),
+    ('has_jixie', '机械'),
+    ('has_cheliang', '车辆'),
+]
+
+CHINESE_SECTION_NUMBERS = [
+    '一', '二', '三', '四', '五', '六', '七', '八', '九', '十',
+    '十一', '十二', '十三'
+]
 
 # 互提资料 - 房建表房屋顺序
 FJ_ROOM_ORDER = [
@@ -233,6 +260,63 @@ def calc_indices(order, enabled_map):
     return result
 
 
+def resolve_cross_template_path():
+    """解析互提资料模板路径，兼容本地不同模板文件名。"""
+    candidates = [CROSS_TEMPLATE_FILE] + CROSS_TEMPLATE_FALLBACK_FILES
+    for filename in candidates:
+        path = os.path.join(TEMPLATE_DIR, filename)
+        if os.path.exists(path):
+            return path
+    return None
+
+
+def build_enabled_chapter_titles(chapter_flags):
+    """根据勾选的专业生成连续章节标题映射。"""
+    enabled_titles = []
+    for flag, title in CHAPTER_TITLE_ORDER:
+        if chapter_flags.get(flag, False):
+            enabled_titles.append(title)
+
+    title_map = {}
+    for idx, title in enumerate(enabled_titles):
+        if idx < len(CHINESE_SECTION_NUMBERS):
+            title_map[title] = f"{CHINESE_SECTION_NUMBERS[idx]}、{title}"
+    return title_map
+
+
+def replace_paragraph_text(paragraph, new_text):
+    """替换段落文本并尽量保留首个 run 的样式。"""
+    if paragraph.runs:
+        paragraph.runs[0].text = new_text
+        for run in paragraph.runs[1:]:
+            run.text = ''
+    else:
+        paragraph.add_run(new_text)
+
+
+def renumber_chapter_titles(document, chapter_flags):
+    """按启用顺序重排文档中的章节标题序号。"""
+    title_map = build_enabled_chapter_titles(chapter_flags)
+    if not title_map:
+        return
+
+    title_pattern = re.compile(
+        r'^(?P<num>[一二三四五六七八九十]+)、\s*(?P<title>%s)$'
+        % '|'.join(re.escape(title) for _, title in CHAPTER_TITLE_ORDER)
+    )
+
+    for paragraph in document.paragraphs:
+        text = paragraph.text.strip()
+        match = title_pattern.fullmatch(text)
+        if not match:
+            continue
+
+        title = match.group('title')
+        new_title = title_map.get(title)
+        if new_title and text != new_title:
+            replace_paragraph_text(paragraph, new_title)
+
+
 def merge_room_configs(data):
     """合并前端传入的房屋配置与默认配置"""
     rooms = data.get('rooms', {})
@@ -294,14 +378,15 @@ def generate_qos_docx(data):
 
 def generate_cross_data_docx(data):
     """根据 docxtpl 模板和数据生成互提资料 docx 文件。"""
-    template_path = os.path.join(TEMPLATE_DIR, CROSS_TEMPLATE_FILE)
-    if not os.path.exists(template_path):
-        return None, f'互提资料模板不存在: {CROSS_TEMPLATE_FILE}'
+    template_path = resolve_cross_template_path()
+    if not template_path:
+        searched = [CROSS_TEMPLATE_FILE] + CROSS_TEMPLATE_FALLBACK_FILES
+        return None, f"互提资料模板不存在: {', '.join(searched)}"
 
     try:
         doc = DocxTemplate(template_path)
 
-        # 1. 专业章节开关（8 个专业）
+        # 1. 专业章节开关（12 个专业）
         chapter_flags = {
             'has_fangjian': safe_bool(data.get('has_fangjian', False)),
             'has_dianli': safe_bool(data.get('has_dianli', False)),
@@ -311,7 +396,19 @@ def generate_cross_data_docx(data):
             'has_wuxian': safe_bool(data.get('has_wuxian', False)),
             'has_jixie': safe_bool(data.get('has_jixie', False)),
             'has_cheliang': safe_bool(data.get('has_cheliang', False)),
+            'has_luji': safe_bool(data.get('has_luji', False)),
+            'has_suidao': safe_bool(data.get('has_suidao', False)),
+            'has_qiaoliang': safe_bool(data.get('has_qiaoliang', False)),
+            'has_zhanchang': safe_bool(data.get('has_zhanchang', False)),
         }
+
+        # 新增通用条款模块逻辑：若选择了新增的4个专业中任意一个，则自动显示通用条款
+        chapter_flags['has_common'] = (
+            chapter_flags['has_luji'] or
+            chapter_flags['has_suidao'] or
+            chapter_flags['has_qiaoliang'] or
+            chapter_flags['has_zhanchang']
+        )
 
         # 兼容旧版前端字段名
         if 'has_fj' in data:
@@ -376,7 +473,14 @@ def generate_cross_data_docx(data):
         output = io.BytesIO()
         doc.save(output)
         output.seek(0)
-        return output, None
+
+        rendered_doc = Document(output)
+        renumber_chapter_titles(rendered_doc, chapter_flags)
+
+        final_output = io.BytesIO()
+        rendered_doc.save(final_output)
+        final_output.seek(0)
+        return final_output, None
 
     except Exception as e:
         import traceback

@@ -20,7 +20,7 @@ const routes = [
         path: '/mutual-data',
         name: 'MutualData',
         component: MutualDataGenerator,
-        meta: { title: '互提资料生成器' }
+        meta: { title: '互提资料（有线通信）' }
     }
 ];
 

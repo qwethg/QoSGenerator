@@ -15,8 +15,8 @@ export default {
             },
             {
                 id: 'mutual-data',
-                title: '互提资料生成器',
-                description: '一键生成复杂的互提资料 Word 文档，支持多模块组合与条件判断。',
+                title: '互提资料生成器（有线通信）',
+                description: '快速生成各阶段有线通信专业的互提资料 Word 文档，包含提站前、站后专业，支持根据需要调整。',
                 icon: 'ri-file-transfer-fill',
                 color: 'var(--accent-caramel)',
                 path: '/mutual-data'
