@@ -20,3 +20,5 @@ coverage.xml
 .idea/
 *.swp
 *.bak
+.worktrees/
+~$*
