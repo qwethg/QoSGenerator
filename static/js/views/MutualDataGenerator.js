@@ -48,7 +48,7 @@ export default {
             project_name: '',
             design_stage: '施工图',
             railway_type: '高速铁路',
-            doc_id: '互提资料-001',
+            doc_id: '**施通-001',
             source_institute: '通号院',
             source_profession: '有线通信',
 
@@ -196,39 +196,49 @@ export default {
                         <i class="ri-toggle-line text-caramel"></i> 接收专业配置
                     </h3>
                 </div>
-                <div class="card-body grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <label class="checkbox-label">
-                        <input v-model="formData.has_fangjian" type="checkbox">
-                        <span>提房建专业</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input v-model="formData.has_dianli" type="checkbox">
-                        <span>提电力专业</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input v-model="formData.has_nuantong" type="checkbox">
-                        <span>提暖通专业</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input v-model="formData.has_qianyin" type="checkbox">
-                        <span>提牵引变电专业</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input v-model="formData.has_jiechuwang" type="checkbox">
-                        <span>提接触网专业</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input v-model="formData.has_wuxian" type="checkbox">
-                        <span>提无线通信专业</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input v-model="formData.has_jixie" type="checkbox">
-                        <span>提机械专业</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input v-model="formData.has_cheliang" type="checkbox">
-                        <span>提车辆专业</span>
-                    </label>
+                <div class="card-body">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <label class="flex items-center gap-2.5 px-4 py-3 rounded-lg border cursor-pointer transition-all duration-200"
+                               :class="formData.has_fangjian ? 'bg-orange-50 border-orange-200 shadow-sm' : 'bg-gray-50 border-gray-100 hover:border-gray-200 hover:bg-gray-100'">
+                            <input v-model="formData.has_fangjian" type="checkbox" class="w-4 h-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500">
+                            <span class="text-sm font-medium" :class="formData.has_fangjian ? 'text-orange-700' : 'text-gray-600'">提房建专业</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 px-4 py-3 rounded-lg border cursor-pointer transition-all duration-200"
+                               :class="formData.has_dianli ? 'bg-orange-50 border-orange-200 shadow-sm' : 'bg-gray-50 border-gray-100 hover:border-gray-200 hover:bg-gray-100'">
+                            <input v-model="formData.has_dianli" type="checkbox" class="w-4 h-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500">
+                            <span class="text-sm font-medium" :class="formData.has_dianli ? 'text-orange-700' : 'text-gray-600'">提电力专业</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 px-4 py-3 rounded-lg border cursor-pointer transition-all duration-200"
+                               :class="formData.has_nuantong ? 'bg-orange-50 border-orange-200 shadow-sm' : 'bg-gray-50 border-gray-100 hover:border-gray-200 hover:bg-gray-100'">
+                            <input v-model="formData.has_nuantong" type="checkbox" class="w-4 h-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500">
+                            <span class="text-sm font-medium" :class="formData.has_nuantong ? 'text-orange-700' : 'text-gray-600'">提暖通专业</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 px-4 py-3 rounded-lg border cursor-pointer transition-all duration-200"
+                               :class="formData.has_qianyin ? 'bg-orange-50 border-orange-200 shadow-sm' : 'bg-gray-50 border-gray-100 hover:border-gray-200 hover:bg-gray-100'">
+                            <input v-model="formData.has_qianyin" type="checkbox" class="w-4 h-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500">
+                            <span class="text-sm font-medium" :class="formData.has_qianyin ? 'text-orange-700' : 'text-gray-600'">提牵引变电专业</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 px-4 py-3 rounded-lg border cursor-pointer transition-all duration-200"
+                               :class="formData.has_jiechuwang ? 'bg-orange-50 border-orange-200 shadow-sm' : 'bg-gray-50 border-gray-100 hover:border-gray-200 hover:bg-gray-100'">
+                            <input v-model="formData.has_jiechuwang" type="checkbox" class="w-4 h-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500">
+                            <span class="text-sm font-medium" :class="formData.has_jiechuwang ? 'text-orange-700' : 'text-gray-600'">提接触网专业</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 px-4 py-3 rounded-lg border cursor-pointer transition-all duration-200"
+                               :class="formData.has_wuxian ? 'bg-orange-50 border-orange-200 shadow-sm' : 'bg-gray-50 border-gray-100 hover:border-gray-200 hover:bg-gray-100'">
+                            <input v-model="formData.has_wuxian" type="checkbox" class="w-4 h-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500">
+                            <span class="text-sm font-medium" :class="formData.has_wuxian ? 'text-orange-700' : 'text-gray-600'">提无线通信专业</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 px-4 py-3 rounded-lg border cursor-pointer transition-all duration-200"
+                               :class="formData.has_jixie ? 'bg-orange-50 border-orange-200 shadow-sm' : 'bg-gray-50 border-gray-100 hover:border-gray-200 hover:bg-gray-100'">
+                            <input v-model="formData.has_jixie" type="checkbox" class="w-4 h-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500">
+                            <span class="text-sm font-medium" :class="formData.has_jixie ? 'text-orange-700' : 'text-gray-600'">提机械专业</span>
+                        </label>
+                        <label class="flex items-center gap-2.5 px-4 py-3 rounded-lg border cursor-pointer transition-all duration-200"
+                               :class="formData.has_cheliang ? 'bg-orange-50 border-orange-200 shadow-sm' : 'bg-gray-50 border-gray-100 hover:border-gray-200 hover:bg-gray-100'">
+                            <input v-model="formData.has_cheliang" type="checkbox" class="w-4 h-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500">
+                            <span class="text-sm font-medium" :class="formData.has_cheliang ? 'text-orange-700' : 'text-gray-600'">提车辆专业</span>
+                        </label>
+                    </div>
                 </div>
             </div>
 
