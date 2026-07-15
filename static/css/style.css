@@ -344,6 +344,26 @@ a {
     border-color: var(--accent-moss);
 }
 
+/* Table specific styles */
+.table-container table {
+    width: 100%;
+    table-layout: fixed;
+}
+.table-container th {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.room-checkbox {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--accent-moss);
+    margin: 0;
+    display: block;
+}
+
 .hint-box {
     display: inline-flex;
     align-items: center;

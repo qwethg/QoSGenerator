@@ -242,35 +242,37 @@ export default {
                     </h3>
                 </div>
                 <div class="card-body">
-                    <p class="text-sm text-gray-500 mb-4">
+                    <p class="text-sm text-gray-500 mb-4" style="font-size: 0.875rem; font-weight: 500; color: var(--text-secondary);">
                         勾选需要生成的房屋类型，直接在表格中修改参数。取消勾选则对应行不会生成。
                     </p>
                     <div class="table-container">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="bg-gray-50 border-b border-gray-200 text-sm">
-                                    <th class="p-2 w-12 text-center">勾选</th>
-                                    <th class="p-2 w-1/5">房屋名称</th>
-                                    <th class="p-2 w-1/6">设置地点</th>
-                                    <th class="p-2 w-20">面积(㎡)</th>
-                                    <th class="p-2 w-16">定员</th>
-                                    <th class="p-2 w-20">用电量(kW)</th>
-                                    <th class="p-2">备注</th>
+                                <tr class="bg-gray-50 border-b border-gray-200">
+                                    <th class="p-2 text-center" style="width: 50px;">勾选</th>
+                                    <th class="p-2" style="width: 25%;">房屋名称</th>
+                                    <th class="p-2" style="width: 20%;">设置地点</th>
+                                    <th class="p-2 text-center" style="width: 12%;">面积(㎡)</th>
+                                    <th class="p-2 text-center" style="width: 10%;">定员</th>
+                                    <th class="p-2 text-center" style="width: 12%;">用电量(kW)</th>
+                                    <th class="p-2" style="width: 21%;">备注</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="rt in DEFAULT_ROOM_TYPES" :key="rt.key"
-                                    class="border-b border-gray-100"
-                                    :class="{ 'opacity-40': !formData.rooms[rt.key].enabled }">
-                                    <td class="p-2 text-center">
-                                        <input v-model="formData.rooms[rt.key].enabled" type="checkbox">
+                                    class="border-b border-gray-100 transition-opacity duration-200"
+                                    :class="{ 'opacity-40 bg-gray-50/50': !formData.rooms[rt.key].enabled }">
+                                    <td class="p-2 text-center" style="width: 50px;">
+                                        <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                                            <input v-model="formData.rooms[rt.key].enabled" type="checkbox" class="room-checkbox">
+                                        </div>
                                     </td>
-                                    <td class="p-2 text-sm font-medium">{{ rt.label }}</td>
-                                    <td class="p-2"><input v-model="formData.rooms[rt.key].loc" type="text" class="form-input py-1 px-2 text-sm" :disabled="!formData.rooms[rt.key].enabled"></td>
-                                    <td class="p-2"><input v-model="formData.rooms[rt.key].area" type="text" class="form-input py-1 px-2 text-sm" :disabled="!formData.rooms[rt.key].enabled"></td>
-                                    <td class="p-2"><input v-model="formData.rooms[rt.key].staff" type="text" class="form-input py-1 px-2 text-sm" :disabled="!formData.rooms[rt.key].enabled"></td>
-                                    <td class="p-2"><input v-model="formData.rooms[rt.key].power" type="text" class="form-input py-1 px-2 text-sm" :disabled="!formData.rooms[rt.key].enabled"></td>
-                                    <td class="p-2"><input v-model="formData.rooms[rt.key].power_remark" type="text" class="form-input py-1 px-2 text-sm" :disabled="!formData.rooms[rt.key].enabled"></td>
+                                    <td class="p-2 text-[0.875rem] font-medium text-gray-700" style="padding-left: 12px;">{{ rt.label }}</td>
+                                    <td class="p-2"><input v-model="formData.rooms[rt.key].loc" type="text" class="form-input py-1.5 px-2.5 text-[0.875rem] w-full bg-transparent hover:bg-white focus:bg-white" :disabled="!formData.rooms[rt.key].enabled"></td>
+                                    <td class="p-2"><input v-model="formData.rooms[rt.key].area" type="text" class="form-input py-1.5 px-2.5 text-[0.875rem] w-full text-center bg-transparent hover:bg-white focus:bg-white" :disabled="!formData.rooms[rt.key].enabled"></td>
+                                    <td class="p-2"><input v-model="formData.rooms[rt.key].staff" type="text" class="form-input py-1.5 px-2.5 text-[0.875rem] w-full text-center bg-transparent hover:bg-white focus:bg-white" :disabled="!formData.rooms[rt.key].enabled"></td>
+                                    <td class="p-2"><input v-model="formData.rooms[rt.key].power" type="text" class="form-input py-1.5 px-2.5 text-[0.875rem] w-full text-center bg-transparent hover:bg-white focus:bg-white" :disabled="!formData.rooms[rt.key].enabled"></td>
+                                    <td class="p-2"><input v-model="formData.rooms[rt.key].power_remark" type="text" class="form-input py-1.5 px-2.5 text-[0.875rem] w-full bg-transparent hover:bg-white focus:bg-white" :disabled="!formData.rooms[rt.key].enabled"></td>
                                 </tr>
                             </tbody>
                         </table>
