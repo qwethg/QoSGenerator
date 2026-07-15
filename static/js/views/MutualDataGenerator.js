@@ -197,46 +197,38 @@ export default {
                     </h3>
                 </div>
                 <div class="card-body">
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <label class="flex items-center gap-2.5 px-4 py-3 rounded-lg border cursor-pointer transition-all duration-200"
-                               :class="formData.has_fangjian ? 'bg-orange-50 border-orange-200 shadow-sm' : 'bg-gray-50 border-gray-100 hover:border-gray-200 hover:bg-gray-100'">
-                            <input v-model="formData.has_fangjian" type="checkbox" class="w-4 h-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500">
-                            <span class="text-sm font-medium" :class="formData.has_fangjian ? 'text-orange-700' : 'text-gray-600'">提房建专业</span>
+                    <div class="grid grid-cols-4 gap-3">
+                        <label class="profession-checkbox" :class="{ 'active': formData.has_fangjian }">
+                            <input v-model="formData.has_fangjian" type="checkbox">
+                            <span>提房建专业</span>
                         </label>
-                        <label class="flex items-center gap-2.5 px-4 py-3 rounded-lg border cursor-pointer transition-all duration-200"
-                               :class="formData.has_dianli ? 'bg-orange-50 border-orange-200 shadow-sm' : 'bg-gray-50 border-gray-100 hover:border-gray-200 hover:bg-gray-100'">
-                            <input v-model="formData.has_dianli" type="checkbox" class="w-4 h-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500">
-                            <span class="text-sm font-medium" :class="formData.has_dianli ? 'text-orange-700' : 'text-gray-600'">提电力专业</span>
+                        <label class="profession-checkbox" :class="{ 'active': formData.has_dianli }">
+                            <input v-model="formData.has_dianli" type="checkbox">
+                            <span>提电力专业</span>
                         </label>
-                        <label class="flex items-center gap-2.5 px-4 py-3 rounded-lg border cursor-pointer transition-all duration-200"
-                               :class="formData.has_nuantong ? 'bg-orange-50 border-orange-200 shadow-sm' : 'bg-gray-50 border-gray-100 hover:border-gray-200 hover:bg-gray-100'">
-                            <input v-model="formData.has_nuantong" type="checkbox" class="w-4 h-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500">
-                            <span class="text-sm font-medium" :class="formData.has_nuantong ? 'text-orange-700' : 'text-gray-600'">提暖通专业</span>
+                        <label class="profession-checkbox" :class="{ 'active': formData.has_nuantong }">
+                            <input v-model="formData.has_nuantong" type="checkbox">
+                            <span>提暖通专业</span>
                         </label>
-                        <label class="flex items-center gap-2.5 px-4 py-3 rounded-lg border cursor-pointer transition-all duration-200"
-                               :class="formData.has_qianyin ? 'bg-orange-50 border-orange-200 shadow-sm' : 'bg-gray-50 border-gray-100 hover:border-gray-200 hover:bg-gray-100'">
-                            <input v-model="formData.has_qianyin" type="checkbox" class="w-4 h-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500">
-                            <span class="text-sm font-medium" :class="formData.has_qianyin ? 'text-orange-700' : 'text-gray-600'">提牵引变电专业</span>
+                        <label class="profession-checkbox" :class="{ 'active': formData.has_qianyin }">
+                            <input v-model="formData.has_qianyin" type="checkbox">
+                            <span>提牵引变电专业</span>
                         </label>
-                        <label class="flex items-center gap-2.5 px-4 py-3 rounded-lg border cursor-pointer transition-all duration-200"
-                               :class="formData.has_jiechuwang ? 'bg-orange-50 border-orange-200 shadow-sm' : 'bg-gray-50 border-gray-100 hover:border-gray-200 hover:bg-gray-100'">
-                            <input v-model="formData.has_jiechuwang" type="checkbox" class="w-4 h-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500">
-                            <span class="text-sm font-medium" :class="formData.has_jiechuwang ? 'text-orange-700' : 'text-gray-600'">提接触网专业</span>
+                        <label class="profession-checkbox" :class="{ 'active': formData.has_jiechuwang }">
+                            <input v-model="formData.has_jiechuwang" type="checkbox">
+                            <span>提接触网专业</span>
                         </label>
-                        <label class="flex items-center gap-2.5 px-4 py-3 rounded-lg border cursor-pointer transition-all duration-200"
-                               :class="formData.has_wuxian ? 'bg-orange-50 border-orange-200 shadow-sm' : 'bg-gray-50 border-gray-100 hover:border-gray-200 hover:bg-gray-100'">
-                            <input v-model="formData.has_wuxian" type="checkbox" class="w-4 h-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500">
-                            <span class="text-sm font-medium" :class="formData.has_wuxian ? 'text-orange-700' : 'text-gray-600'">提无线通信专业</span>
+                        <label class="profession-checkbox" :class="{ 'active': formData.has_wuxian }">
+                            <input v-model="formData.has_wuxian" type="checkbox">
+                            <span>提无线通信专业</span>
                         </label>
-                        <label class="flex items-center gap-2.5 px-4 py-3 rounded-lg border cursor-pointer transition-all duration-200"
-                               :class="formData.has_jixie ? 'bg-orange-50 border-orange-200 shadow-sm' : 'bg-gray-50 border-gray-100 hover:border-gray-200 hover:bg-gray-100'">
-                            <input v-model="formData.has_jixie" type="checkbox" class="w-4 h-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500">
-                            <span class="text-sm font-medium" :class="formData.has_jixie ? 'text-orange-700' : 'text-gray-600'">提机械专业</span>
+                        <label class="profession-checkbox" :class="{ 'active': formData.has_jixie }">
+                            <input v-model="formData.has_jixie" type="checkbox">
+                            <span>提机械专业</span>
                         </label>
-                        <label class="flex items-center gap-2.5 px-4 py-3 rounded-lg border cursor-pointer transition-all duration-200"
-                               :class="formData.has_cheliang ? 'bg-orange-50 border-orange-200 shadow-sm' : 'bg-gray-50 border-gray-100 hover:border-gray-200 hover:bg-gray-100'">
-                            <input v-model="formData.has_cheliang" type="checkbox" class="w-4 h-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500">
-                            <span class="text-sm font-medium" :class="formData.has_cheliang ? 'text-orange-700' : 'text-gray-600'">提车辆专业</span>
+                        <label class="profession-checkbox" :class="{ 'active': formData.has_cheliang }">
+                            <input v-model="formData.has_cheliang" type="checkbox">
+                            <span>提车辆专业</span>
                         </label>
                     </div>
                 </div>
@@ -294,71 +286,68 @@ export default {
                     </h3>
                 </div>
                 <div class="card-body">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-3 gap-6">
                         
                         <!-- 站台沟 -->
-                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
-                            <h4 class="text-sm font-medium text-gray-700 mb-4 flex items-center gap-1.5">
-                                <i class="ri-drag-move-line text-gray-400"></i> 站台沟 (mm)
+                        <div class="cable-card">
+                            <h4 class="cable-title">
+                                <i class="ri-drag-move-line"></i> 站台沟 (mm)
                             </h4>
-                            <div class="space-y-4">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">通信站</span>
-                                    <div class="flex items-center gap-2">
-                                        <div class="flex items-center"><span class="text-xs text-gray-400 mr-1">宽</span><input v-model.number="formData.cable_trench.trench_txz_width" type="number" class="form-input w-20 py-1 px-2 text-sm text-center"></div>
-                                        <div class="flex items-center"><span class="text-xs text-gray-400 mr-1">深</span><input v-model.number="formData.cable_trench.trench_txz_depth" type="number" class="form-input w-20 py-1 px-2 text-sm text-center"></div>
-                                    </div>
+                            <div class="cable-row">
+                                <span class="cable-label">通信站</span>
+                                <div class="cable-inputs">
+                                    <div class="cable-input-group"><span class="cable-input-prefix">宽</span><input v-model.number="formData.cable_trench.trench_txz_width" type="number" class="cable-input"></div>
+                                    <div class="cable-input-group"><span class="cable-input-prefix">深</span><input v-model.number="formData.cable_trench.trench_txz_depth" type="number" class="cable-input"></div>
                                 </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">中间站</span>
-                                    <div class="flex items-center gap-2">
-                                        <div class="flex items-center"><span class="text-xs text-gray-400 mr-1">宽</span><input v-model.number="formData.cable_trench.trench_mid_width" type="number" class="form-input w-20 py-1 px-2 text-sm text-center"></div>
-                                        <div class="flex items-center"><span class="text-xs text-gray-400 mr-1">深</span><input v-model.number="formData.cable_trench.trench_mid_depth" type="number" class="form-input w-20 py-1 px-2 text-sm text-center"></div>
-                                    </div>
+                            </div>
+                            <div class="cable-row">
+                                <span class="cable-label">中间站</span>
+                                <div class="cable-inputs">
+                                    <div class="cable-input-group"><span class="cable-input-prefix">宽</span><input v-model.number="formData.cable_trench.trench_mid_width" type="number" class="cable-input"></div>
+                                    <div class="cable-input-group"><span class="cable-input-prefix">深</span><input v-model.number="formData.cable_trench.trench_mid_depth" type="number" class="cable-input"></div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- 分支槽 -->
-                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
-                            <h4 class="text-sm font-medium text-gray-700 mb-4 flex items-center gap-1.5">
-                                <i class="ri-node-tree text-gray-400"></i> 分支槽 (mm)
+                        <div class="cable-card">
+                            <h4 class="cable-title">
+                                <i class="ri-node-tree"></i> 分支槽 (mm)
                             </h4>
-                            <div class="space-y-4">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">通信站</span>
-                                    <div class="flex items-center gap-2">
-                                        <div class="flex items-center"><span class="text-xs text-gray-400 mr-1">宽</span><input v-model.number="formData.cable_trench.branch_txz_width" type="number" class="form-input w-20 py-1 px-2 text-sm text-center"></div>
-                                        <div class="flex items-center"><span class="text-xs text-gray-400 mr-1">深</span><input v-model.number="formData.cable_trench.branch_txz_depth" type="number" class="form-input w-20 py-1 px-2 text-sm text-center"></div>
-                                    </div>
+                            <div class="cable-row">
+                                <span class="cable-label">通信站</span>
+                                <div class="cable-inputs">
+                                    <div class="cable-input-group"><span class="cable-input-prefix">宽</span><input v-model.number="formData.cable_trench.branch_txz_width" type="number" class="cable-input"></div>
+                                    <div class="cable-input-group"><span class="cable-input-prefix">深</span><input v-model.number="formData.cable_trench.branch_txz_depth" type="number" class="cable-input"></div>
                                 </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">主要房屋</span>
-                                    <div class="flex items-center gap-2">
-                                        <div class="flex items-center"><span class="text-xs text-gray-400 mr-1">宽</span><input v-model.number="formData.cable_trench.branch_major_width" type="number" class="form-input w-20 py-1 px-2 text-sm text-center"></div>
-                                        <div class="flex items-center"><span class="text-xs text-gray-400 mr-1">深</span><input v-model.number="formData.cable_trench.branch_major_depth" type="number" class="form-input w-20 py-1 px-2 text-sm text-center"></div>
-                                    </div>
+                            </div>
+                            <div class="cable-row">
+                                <span class="cable-label">主要房屋</span>
+                                <div class="cable-inputs">
+                                    <div class="cable-input-group"><span class="cable-input-prefix">宽</span><input v-model.number="formData.cable_trench.branch_major_width" type="number" class="cable-input"></div>
+                                    <div class="cable-input-group"><span class="cable-input-prefix">深</span><input v-model.number="formData.cable_trench.branch_major_depth" type="number" class="cable-input"></div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- 场坪槽与其它 -->
-                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
-                            <h4 class="text-sm font-medium text-gray-700 mb-4 flex items-center gap-1.5">
-                                <i class="ri-layout-masonry-line text-gray-400"></i> 场坪槽与其它
+                        <div class="cable-card">
+                            <h4 class="cable-title">
+                                <i class="ri-layout-masonry-line"></i> 场坪槽与其它
                             </h4>
-                            <div class="space-y-4">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">房屋场坪槽</span>
-                                    <div class="flex items-center gap-2">
-                                        <div class="flex items-center"><span class="text-xs text-gray-400 mr-1">宽</span><input v-model.number="formData.cable_trench.trough_width" type="number" class="form-input w-20 py-1 px-2 text-sm text-center"></div>
-                                        <div class="flex items-center"><span class="text-xs text-gray-400 mr-1">深</span><input v-model.number="formData.cable_trench.trough_depth" type="number" class="form-input w-20 py-1 px-2 text-sm text-center"></div>
-                                    </div>
+                            <div class="cable-row">
+                                <span class="cable-label">房屋场坪槽</span>
+                                <div class="cable-inputs">
+                                    <div class="cable-input-group"><span class="cable-input-prefix">宽</span><input v-model.number="formData.cable_trench.trough_width" type="number" class="cable-input"></div>
+                                    <div class="cable-input-group"><span class="cable-input-prefix">深</span><input v-model.number="formData.cable_trench.trough_depth" type="number" class="cable-input"></div>
                                 </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">双槽最小间距</span>
-                                    <div class="flex items-center">
-                                        <input v-model.number="formData.cable_trench.branch_dist_min" type="number" class="form-input w-20 py-1 px-2 text-sm text-center"><span class="text-xs text-gray-400 ml-2">m</span>
+                            </div>
+                            <div class="cable-row">
+                                <span class="cable-label">双槽最小间距</span>
+                                <div class="cable-inputs">
+                                    <div class="cable-input-group">
+                                        <input v-model.number="formData.cable_trench.branch_dist_min" type="number" class="cable-input">
+                                        <span class="cable-input-prefix" style="margin-left:4px; margin-right:0;">m</span>
                                     </div>
                                 </div>
                             </div>
