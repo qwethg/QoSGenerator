@@ -86,6 +86,18 @@ class NewProfessionsTemplateTest(unittest.TestCase):
         self.assertIsNone(error, msg=error)
         self.assertIsNotNone(output)
 
+    def test_station_front_defaults_to_false_when_group_missing(self):
+        """站前基础信息：前端未传 station_front 分组时，不应崩溃"""
+        data = {
+            "project_name": "站前默认值测试",
+            "has_qiaoliang": True
+        }
+
+        output, error = generate_cross_data_docx(data)
+
+        self.assertIsNone(error, msg=error)
+        self.assertIsNotNone(output)
+
 
 if __name__ == "__main__":
     unittest.main()
