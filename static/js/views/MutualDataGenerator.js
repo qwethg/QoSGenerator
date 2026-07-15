@@ -288,7 +288,7 @@ export default {
                     </h3>
                 </div>
                 <div class="card-body">
-                    <div class="grid grid-cols-3 gap-6">
+                    <div class="grid grid-cols-2 gap-6">
                         
                         <!-- 站台沟 -->
                         <div class="cable-card">
@@ -332,24 +332,26 @@ export default {
                             </div>
                         </div>
 
-                        <!-- 场坪槽与其它 -->
-                        <div class="cable-card">
+                        <!-- 场坪槽与其它 (跨两列显示) -->
+                        <div class="cable-card" style="grid-column: span 2;">
                             <h4 class="cable-title">
                                 <i class="ri-layout-masonry-line"></i> 场坪槽与其它
                             </h4>
-                            <div class="cable-row">
-                                <span class="cable-label">房屋场坪槽</span>
-                                <div class="cable-inputs">
-                                    <div class="cable-input-group"><span class="cable-input-prefix">宽</span><input v-model.number="formData.cable_trench.trough_width" type="number" class="cable-input"></div>
-                                    <div class="cable-input-group"><span class="cable-input-prefix">深</span><input v-model.number="formData.cable_trench.trough_depth" type="number" class="cable-input"></div>
+                            <div class="grid grid-cols-2 gap-6">
+                                <div class="cable-row" style="margin-bottom: 0;">
+                                    <span class="cable-label">房屋场坪槽</span>
+                                    <div class="cable-inputs">
+                                        <div class="cable-input-group"><span class="cable-input-prefix">宽</span><input v-model.number="formData.cable_trench.trough_width" type="number" class="cable-input"></div>
+                                        <div class="cable-input-group"><span class="cable-input-prefix">深</span><input v-model.number="formData.cable_trench.trough_depth" type="number" class="cable-input"></div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="cable-row">
-                                <span class="cable-label">双槽最小间距</span>
-                                <div class="cable-inputs">
-                                    <div class="cable-input-group">
-                                        <input v-model.number="formData.cable_trench.branch_dist_min" type="number" class="cable-input">
-                                        <span class="cable-input-prefix" style="margin-left:4px; margin-right:0;">m</span>
+                                <div class="cable-row" style="margin-bottom: 0;">
+                                    <span class="cable-label">双槽最小间距</span>
+                                    <div class="cable-inputs">
+                                        <div class="cable-input-group">
+                                            <input v-model.number="formData.cable_trench.branch_dist_min" type="number" class="cable-input">
+                                            <span class="cable-input-prefix" style="margin-left:4px; margin-right:0;">m</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
