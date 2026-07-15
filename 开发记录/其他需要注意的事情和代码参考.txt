@@ -1,0 +1,140 @@
+其他需要注意的事情和代码参考：
+
+### 1.房建章节里，房屋面积及定员表格里，通信站部分，有选择 普通地区所在地或者枢纽所在地。  
+	3. 后端 Python 处理逻辑
+后端（app.py）根据前端传回的两个简单选择，直接做数据映射：
+
+Python
+# 假设前端传回的数据如下
+user_input = {
+    "has_txz": True,         # 用户勾选了：有通信站
+    "txz_type": "hub"        # 用户勾选了：枢纽所在地 (普通为 "normal")
+}
+
+context = {}
+
+if user_input["has_txz"]:
+    context["has_txz"] = True
+    
+    # 根据用户选择的性质，自动匹配官方标准数据
+    if user_input["txz_type"] == "hub":
+        context["txz"] = {
+            "location": "既有海口车站", # 举例，可由用户手填
+            "area": "1900",
+            "size": "—",
+            "staff": "15",
+            "remark": "枢纽所在地"
+        }
+    else: # normal 普通地点
+        context["txz"] = {
+            "location": "普通车站",
+            "area": "1100",
+            "size": "—",
+            "staff": "12",
+            "remark": "普通"
+        }
+else:
+    context["has_txz"] = False
+    context["txz"] = {} # 空对象，防止模板报错
+
+
+### 2. 序号递增：
+1. 后端（Python）：动态序号生成器在你的后端代码中，初始化一个自增变量 current_idx = 1。每当判断一个专业块需要显示时，就把当前的数字赋给它，随后 current_idx 加 1。Python# 1. 初始化序号计数器，从 1 开始
+current_idx = 1
+context = {}
+
+# ==== 块1：通信站 ====
+if user_input.get("has_txz"):
+    context["has_txz"] = True
+    context["idx_txz"] = current_idx  # 动态分配当前序号
+    current_idx += 1                  # 序号暗中加 1
+else:
+    context["has_txz"] = False
+
+# ==== 块2：信号楼/RBC ====
+if user_input.get("has_xhl"):
+    context["has_xhl"] = True
+    context["idx_xhl"] = current_idx  # 动态分配当前序号
+    current_idx += 1                  # 序号暗中加 1
+else:
+    context["has_xhl"] = False
+
+# ==== 块3：线路所 ====
+if user_input.get("has_xls"):
+    context["has_xls"] = True
+    context["idx_xls"] = current_idx
+    current_idx += 1
+else:
+    context["has_xls"] = False
+
+# ==== 块4：站房 ====
+if user_input.get("has_zf"):
+    context["has_zf"] = True
+    context["idx_zf"] = current_idx
+    current_idx += 1
+else:
+    context["has_zf"] = False
+2. Word 模板：直接引用序号变量在 Word 模板里，你只需要把原本写死数字（1、2、3、4）的“序号”单元格，替换成对应的变量即可。你的 Word 表格布局会变成这样：序号列（最左侧单元格）房屋名称及控制标签{%tr if has_txz %} {{ idx_txz }} (合并单元格)通信站（1）通信综合楼...（4）门卫 {%tr endif %}{%tr if has_xhl %} {{ idx_xhl }} (合并单元格)信号楼/RBC（大）信号楼/RBC（中）信号楼/RBC（小） {%tr endif %}{%tr if has_xls %} {{ idx_xls }}线路所通信机械室 {%tr endif %}{%tr if has_zf %} {{ idx_zf }}站房通信机械室 {%tr endif %}
+
+
+### 3. 电力表格联动
+
+以下是为你重新设计的电力表格 Word 模板以及对应的后端 Python 渲染逻辑：📋 一、 电力表格 Word 模板（完全对齐房建变量）请在 Word 模板中将电力表修改为如下结构。最左侧的序号变量采用电力专属的 idx_el_...，以保证两张表的序号各自连续：序号设置地点房屋名称交流供电等级额定电压 (V)通信设备用电量通信设备散热量备注{%tr if has_txz %} {{ idx_el_txz }}新建通信站电源室一级AC 380V±10%100kW90.0kW既有海口站{%tr if has_xhl_l %} {{ idx_el_xhl_l }}信号楼（车站）- 大通信机械室一级AC 380V±10%45kW40.5kW枢纽重要站点{%tr if has_xhl_m %} {{ idx_el_xhl_m }}信号楼（车站）- 中通信机械室一级AC 380V±10%25kW22.5kW视频节点、市级{%tr if has_xhl_s %} {{ idx_el_xhl_s }}信号楼（车站）- 小通信机械室一级AC 380V±10%15kW13.5kW其他{%tr if has_xls %} {{ idx_el_xls }}线路所通信机械室一级AC 380V±10%25kW22.5kW{%tr if has_yrj %} {{ idx_el_yrj }}车站引入所厅通信引入间一级AC 380V±10%5kW4.5kW{%tr if has_zf %} {{ idx_el_zf }}站房通信机械室一级AC 380V±10%15kW13.5kW不含信号楼的站房{%tr if has_ziz %} {{ idx_el_ziz }}信号中继站通信机械室一级AC 380V±10%15kW13.5kW{%tr if has_pcs %} {{ idx_el_pcs }}公安派出所通信机械室一级AC 380V±10%10kW9.0kW{%tr if has_hyl %} {{ idx_el_hyl }}货运楼通信机械室一级AC 380V±10%15kW13.5kW{%tr if has_ds %} {{ idx_el_ds }}动车所、综合维修段等通信机械室一级AC 380V±10%15kW13.5kW{%tr if has_hzgs %} {{ idx_el_hzgs }}单身宿舍、办公楼配线间↙ (画斜线)AC 220V±10%2kW1.8kW公司管理{%tr if has_txcj %} {{ idx_el_txcj }}存车场生产办公楼通信机械室一级AC 380V±10%15kW13.5kW{%tr if has_txgq %} {{ idx_el_txgq }}综合维修工区办公楼通信机械室一级AC 380V±10%15kW13.5kW{%tr if has_dlpds %} {{ idx_el_dlpds }}电力配电所通信机械室一级AC 380V±10%10kW9.0kW箱式机房设于主控室{%tr if has_dohst %} {{ idx_el_dohst }}电气化所亭通信机械室一级AC 380V±10%10kW9.0kW箱式机房设于主控室{%tr if has_txyrjx %} {{ idx_el_txyrjx }}车辆探测站（5T机房）车辆5T机房↙ (画斜线)AC 220V±10%2kW1.8kW通信设备用插座{%tr if has_txzbgq %} {{ idx_el_txzbgq }}未设工区的地点通信值班工区↙ (画斜线)AC 220V±10%2kW1.8kW{%tr if has_txiz %} {{ idx_el_txiz }}区间基站通信机械室一级AC 380V±10%↙ (画斜线)↙ (画斜线)由无线专业一并提出 {%tr endif %}⚠️ 注意闭合标签：请务必像你在房建表里做的那样，在每一行的最后一列（备注栏）的文字后面加上 {%tr endif %}，上表由于排版缘故仅在最后一行示范。🐍 二、 后端 Python 动态数据处理为了让用电量和散热量不需要在代码里写死、且序号自动连续，后端可以用循环或显式逻辑自动计算。以下是对应的代码处理方式：Python# 1. 统一定义所有房屋的电力标准参数 (用电量, 供电等级, 电压, 备注等)
+POWER_CONFIG = {
+    "txz":    {"cap": 100, "level": "一级", "volt": "AC 380V±10%", "remark": "既有海口站"},
+    "xhl_l":  {"cap": 45,  "level": "一级", "volt": "AC 380V±10%", "remark": "枢纽重要站点"},
+    "xhl_m":  {"cap": 25,  "level": "一级", "volt": "AC 380V±10%", "remark": "视频节点、市级"},
+    "xhl_s":  {"cap": 15,  "level": "一级", "volt": "AC 380V±10%", "remark": "其他"},
+    "xls":    {"cap": 25,  "level": "一级", "volt": "AC 380V±10%", "remark": ""},
+    "yrj":    {"cap": 5,   "level": "一级", "volt": "AC 380V±10%", "remark": ""},
+    "zf":     {"cap": 15,  "level": "一级", "volt": "AC 380V±10%", "remark": "不含信号楼的站房"},
+    "ziz":    {"cap": 15,  "level": "一级", "volt": "AC 380V±10%", "remark": ""},
+    "pcs":    {"cap": 10,  "level": "一级", "volt": "AC 380V±10%", "remark": ""},
+    "hyl":    {"cap": 15,  "level": "一级", "volt": "AC 380V±10%", "remark": ""},
+    "ds":     {"cap": 15,  "level": "一级", "volt": "AC 380V±10%", "remark": ""},
+    "hzgs":   {"cap": 2,   "level": "—",    "volt": "AC 220V±10%", "remark": "公司管理"},
+    "txcj":   {"cap": 15,  "level": "一级", "volt": "AC 380V±10%", "remark": ""},
+    "txgq":   {"cap": 15,  "level": "一级", "volt": "AC 380V±10%", "remark": ""},
+    "dlpds":  {"cap": 10,  "level": "一级", "volt": "AC 380V±10%", "remark": "箱式机房设于主控室"},
+    "dohst":  {"cap": 10,  "level": "一级", "volt": "AC 380V±10%", "remark": "箱式机房设于主控室"},
+    "txyrjx": {"cap": 2,   "level": "—",    "volt": "AC 220V±10%", "remark": "通信设备用插座"},
+    "txzbgq": {"cap": 2,   "level": "—",    "volt": "AC 220V±10%", "remark": ""},
+    "txiz":   {"cap": None,"level": "一级", "volt": "AC 380V±10%", "remark": "由无线专业一并提出"} # 基站特殊处理
+}
+
+# 2. 这里的 user_input 模拟前端用户勾选了哪些房屋 (True/False)
+# 无论是房建还是电力，直接共享这套 has_ 开关
+user_input = {
+    "has_txz": True, "has_xhl_l": True, "has_xhl_m": False, "has_xhl_s": True,
+    "has_xls": True, "has_yrj": False, "has_zf": True, "has_ziz": True,
+    # ... 保持和前端房建勾选完全一致
+}
+
+context = {}
+el_idx = 1 # 初始化电力表格的自增序号
+
+# 3. 核心遍历：计算用电量、散热量并分配电力序号
+for key, cfg in POWER_CONFIG.items():
+    flag_name = f"has_{key}"
+    is_checked = user_input.get(flag_name, False)
+    
+    context[flag_name] = is_checked
+    
+    if is_checked:
+        # 分配电力专属连续序号
+        context[f"idx_el_{key}"] = el_idx
+        el_idx += 1
+        
+        # 动态计算散热量 (90%)
+        if cfg["cap"] is not None:
+            power_val = cfg["cap"]
+            heat_val = round(power_val * 0.9, 1) # 核心计算公式
+            
+            context[f"el_{key}_cap"] = f"{power_val}kW"
+            context[f"el_{key}_heat"] = f"{heat_val}kW"
+        else:
+            # 处理基站这种画斜线的情况
+            context[f"el_{key}_cap"] = "—"
+            context[f"el_{key}_heat"] = "—"
+通过这种处理方式，即使用户在前端随便勾选，Word 导出的房建表和电力表也会严丝合缝地同步增删行，并且散热量永远是精确的 90% 联动！
+

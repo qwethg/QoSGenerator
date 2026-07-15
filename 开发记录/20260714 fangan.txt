@@ -1,0 +1,337 @@
+我已经看到了你的模板和前端设计。这是一个**互提资料单生成器**，核心需求是：根据用户勾选的专业（房建、电力、车辆等），在生成的 Word 中**动态保留或删除对应章节**。
+
+让我分析你的模板结构，然后给出具体的技术建议。
+
+---
+
+## 一、模板结构分析
+
+你的模板包含以下主要章节，每个章节对应一个专业：
+
+| 章节 | 专业 | 动态控制需求 |
+|-----|------|-----------|
+| 一、房建 | 房建专业 | 有动态表格（通信房屋面积表） |
+| 二、电力 | 电力专业 | 有动态表格（设备用电表） |
+| 三、暖通 | 暖通专业 | 纯文本，无表格 |
+| 四、牵引变电 | 牵引变电专业 | 有固定表格 |
+| 五、接触网 | 接触网专业 | 纯文本+图片 |
+| 六、无线通信 | 无线通信专业 | 纯文本 |
+| 七、机械 | 机械专业 | 有动态表格 |
+| 八、车辆 | 车辆专业 | 纯文本 |
+
+**关键观察**：你的模板里已经用了 `{%tr if ... %}` 来控制表格行的显示/隐藏（比如房建章节的 `has_txz`、`has_xhl_l` 等），但这只是**表格行级别**的控制。你还需要**章节级别**的控制——整个"一、房建"章节可能都不需要出现。
+
+---
+
+## 二、核心问题：章节级别的动态显示/隐藏
+
+你的需求是：如果用户**没勾选"提房建专业"**，那么整个"一、房建"章节（包括标题、正文、表格、后面的换行）都应该**完全消失**，不留空白。
+
+这和表格行的 `{%tr if ... %}` 不同，这是**段落/块级**的控制。
+
+---
+
+## 三、具体技术方案
+
+### 方案 A：使用 `{%p if ... %}` 包裹整个章节（推荐）
+
+这是和你已有的 QoS 模板相同的方案。用 `{%p if ... %}` 和 `{%p endif %}` 包裹整个章节的所有内容。
+
+**Word 模板中的写法**：
+
+```
+{%p if has_fangjian %}
+# 一、房建
+
+> **1、通信房屋面积及定员**
+
+[表格内容...]
+
+**2、通信房屋工艺要求**
+
+[正文...]
+
+**3、站台电缆沟**
+
+[正文...]
+
+**4、分支电缆槽**
+
+[正文...]
+
+**3、机房屏蔽网要求**
+
+[正文...]
+{%p endif %}
+```
+
+**关键点**：
+- `{%p if has_fangjian %}` 放在章节标题**前面的一个独立段落**
+- `{%p endif %}` 放在章节**最后一个内容后面的一个独立段落**
+- 中间的所有内容（标题、正文、表格、图片）都会被条件控制
+
+**后端代码**：
+
+```python
+context = {
+    # 基础信息
+    'project_name': '某铁路项目',
+    'design_stage': '施工图',
+    'doc_id': '互提资料-001',
+    
+    # 章节开关（由前端复选框控制）
+    'has_fangjian': True,      # 提房建专业
+    'has_dianli': True,        # 提电力专业
+    'has_nuantong': False,     # 不提暖通专业
+    'has_qianyin': True,       # 提牵引变电
+    'has_jiechuwang': False,   # 不提接触网
+    'has_wuxian': True,        # 提无线通信
+    'has_jixie': False,        # 不提机械
+    'has_cheliang': True,      # 提车辆专业
+    
+    # 表格行级别的开关（房建章节内部）
+    'has_txz': True,
+    'has_xhl_l': True,
+    'has_xhl_m': False,
+    # ... 其他房间类型
+}
+```
+
+---
+
+### 方案 B：更精细的控制——章节标题 + 内容分离
+
+如果你的模板中，章节标题和正文之间可能有分页符或其他格式要求，可以这样：
+
+```
+{%p if has_fangjian %}
+# 一、房建
+{%p endif %}
+
+{%p if has_fangjian %}
+> **1、通信房屋面积及定员**
+[表格...]
+{%p endif %}
+```
+
+但这会导致标题和内容之间可能出现 unwanted 的分页，**不推荐**。方案 A 的一整块包裹更干净。
+
+---
+
+## 四、前端设计建议
+
+根据你的截图，前端已经有"接收专业配置"区域，有复选框：
+
+```
+☑ 提房建专业  ☑ 提电力专业  ☑ 提车辆专业
+```
+
+**建议扩展为完整的 8 个专业**：
+
+```html
+<fieldset>
+  <legend>接收专业配置</legend>
+  
+  <label><input type="checkbox" name="has_fangjian" checked> 提房建专业</label>
+  <label><input type="checkbox" name="has_dianli" checked> 提电力专业</label>
+  <label><input type="checkbox" name="has_nuantong" checked> 提暖通专业</label>
+  <label><input type="checkbox" name="has_qianyin" checked> 提牵引变电专业</label>
+  <label><input type="checkbox" name="has_jiechuwang" checked> 提接触网专业</label>
+  <label><input type="checkbox" name="has_wuxian" checked> 提无线通信专业</label>
+  <label><input type="checkbox" name="has_jixie" checked> 提机械专业</label>
+  <label><input type="checkbox" name="has_cheliang" checked> 提车辆专业</label>
+</fieldset>
+```
+
+**JavaScript 联动**（可选）：如果某个专业未勾选，可以隐藏该专业对应的详细配置表单，减少界面复杂度。
+
+---
+
+## 五、模板修改的具体步骤
+
+### 步骤 1：在 Word 中打开模板
+
+### 步骤 2：找到"一、房建"章节
+
+在"一、房建"标题的**上一行**（或标题本身所在段落），输入：
+
+```
+{%p if has_fangjian %}
+```
+
+**注意**：这必须是一个**独立的段落**，不要和其他文字混在同一行。
+
+### 步骤 3：找到"一、房建"章节的最后一个内容
+
+房建章节的最后一个内容是"3、机房屏蔽网要求"及其后面的图片。在**最后一个图片之后**，新建一个段落，输入：
+
+```
+{%p endif %}
+```
+
+### 步骤 4：重复步骤 2-3 对其他章节
+
+| 章节 | 开始标签 | 结束标签 |
+|-----|---------|---------|
+| 一、房建 | `{%p if has_fangjian %}` | `{%p endif %}` |
+| 二、电力 | `{%p if has_dianli %}` | `{%p endif %}` |
+| 三、暖通 | `{%p if has_nuantong %}` | `{%p endif %}` |
+| 四、牵引变电 | `{%p if has_qianyin %}` | `{%p endif %}` |
+| 五、接触网 | `{%p if has_jiechuwang %}` | `{%p endif %}` |
+| 六、无线通信 | `{%p if has_wuxian %}` | `{%p endif %}` |
+| 七、机械 | `{%p if has_jixie %}` | `{%p endif %}` |
+| 八、车辆 | `{%p if has_cheliang %}` | `{%p endif %}` |
+
+---
+
+## 六、一个关键细节：表格在 `{%p if %}` 块内
+
+你的模板中，房建和电力章节内部**已经有表格**，而且这些表格的行也用了 `{%tr if ... %}`。
+
+**这是完全兼容的**——`{%p if %}` 控制整个章节的显示/隐藏，`{%tr if %}` 控制表格内部行的显示/隐藏，两者可以嵌套使用。
+
+```
+{%p if has_fangjian %}          ← 章节级控制
+# 一、房建
+
+| 序号 | 房屋名称 | ... |
+| {%tr if has_txz %}通信站 ... | ... | ... |   ← 表格行级控制
+| {%tr if has_xhl_l %}信号楼 ... | ... | ... |
+
+{%p endif %}                     ← 章节级控制结束
+```
+
+---
+
+## 七、后端 Flask 代码框架
+
+```python
+from flask import Flask, render_template, request, send_file
+from docxtpl import DocxTemplate
+import io
+
+app = Flask(__name__)
+
+@app.route('/generate', methods=['POST'])
+def generate():
+    data = request.get_json()
+    
+    # 构建上下文
+    context = {
+        # 基础信息
+        'project_name': data.get('project_name', ''),
+        'design_stage': data.get('design_stage', ''),
+        'doc_id': data.get('doc_id', ''),
+        'source_institute': data.get('source_institute', '通信所'),
+        'source_profession': data.get('source_profession', '通信'),
+        
+        # 章节开关（布尔值）
+        'has_fangjian': data.get('has_fangjian', False),
+        'has_dianli': data.get('has_dianli', False),
+        'has_nuantong': data.get('has_nuantong', False),
+        'has_qianyin': data.get('has_qianyin', False),
+        'has_jiechuwang': data.get('has_jiechuwang', False),
+        'has_wuxian': data.get('has_wuxian', False),
+        'has_jixie': data.get('has_jixie', False),
+        'has_cheliang': data.get('has_cheliang', False),
+        
+        # 房建表格内部开关
+        'has_txz': data.get('has_txz', False),
+        'has_xhl_l': data.get('has_xhl_l', False),
+        'has_xhl_m': data.get('has_xhl_m', False),
+        'has_xhl_s': data.get('has_xhl_s', False),
+        'has_xls': data.get('has_xls', False),
+        'has_yrj': data.get('has_yrj', False),
+        'has_zf': data.get('has_zf', False),
+        'has_zjz': data.get('has_zjz', False),
+        'has_pcs': data.get('has_pcs', False),
+        'has_hyl': data.get('has_hyl', False),
+        'has_ds': data.get('has_ds', False),
+        'has_hzgs': data.get('has_hzgs', False),
+        'has_txcj': data.get('has_txcj', False),
+        'has_txgq': data.get('has_txgq', False),
+        'has_dlpds': data.get('has_dlpds', False),
+        'has_dqhst': data.get('has_dqhst', False),
+        'has_txyrjx': data.get('has_txyrjx', False),
+        'has_txzbgq': data.get('has_txzbgq', False),
+        'has_txjz': data.get('has_txjz', False),
+        
+        # 序号自动生成（可以在后端计算，避免前端传）
+        'idx_txz': 1,
+        'idx_xhl_l': 2,
+        'idx_xhl_m': 3,
+        # ... 其他序号
+    }
+    
+    # 自动计算序号（根据哪些房间被启用）
+    idx = 1
+    for room in ['txz', 'xhl_l', 'xhl_m', 'xhl_s', 'xls', 'yrj', 'zf', 
+                 'zjz', 'pcs', 'hyl', 'ds', 'hzgs', 'txcj', 'txgq', 
+                 'dlpds', 'dqhst', 'txyrjx', 'txzbgq', 'txjz']:
+        if context.get(f'has_{room}', False):
+            context[f'idx_{room}'] = idx
+            idx += 1
+        else:
+            context[f'idx_{room}'] = ''
+    
+    # 渲染模板
+    doc = DocxTemplate('templates_docx/互提资料模板-施工图-站后.docx')
+    doc.render(context)
+    
+    output = io.BytesIO()
+    doc.save(output)
+    output.seek(0)
+    
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name=f"{context['project_name']}_互提资料_{context['design_stage']}.docx",
+        mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    )
+```
+
+---
+
+## 八、序号自动化的优化建议
+
+我注意到你的模板里每个房间都有 `{{ idx_xxx }}` 用于序号。如果某些房间被删除，序号应该重新连续编号。
+
+**建议在后端自动计算序号**，而不是让前端传：
+
+```python
+# 房建表格中的房间顺序
+rooms_order = [
+    'txz', 'xhl_l', 'xhl_m', 'xhl_s', 'xls', 'yrj', 'zf',
+    'zjz', 'pcs', 'hyl', 'ds', 'hzgs', 'txcj', 'txgq',
+    'dlpds', 'dqhst', 'txyrjx', 'txzbgq', 'txjz'
+]
+
+idx = 1
+for room in rooms_order:
+    if context.get(f'has_{room}', False):
+        context[f'idx_{room}'] = idx
+        idx += 1
+    else:
+        context[f'idx_{room}'] = ''  # 空字符串，因为该行会被删除
+```
+
+这样前端只需要传布尔值开关，不需要管序号。
+
+---
+
+## 九、总结：你需要做的具体事情
+
+| 步骤 | 内容 | 工作量 |
+|-----|------|--------|
+| 1 | 在 Word 模板中，为每个章节添加 `{%p if ... %}` 和 `{%p endif %}` | 中等 |
+| 2 | 确认表格内的 `{%tr if ... %}` 标签位置正确（已在模板中） | 已部分完成 |
+| 3 | 前端增加 8 个专业的复选框 | 小 |
+| 4 | 后端增加章节布尔值映射和序号自动计算 | 小 |
+| 5 | 测试：勾选不同组合，检查生成文档是否有空白页 | 必要 |
+
+**最需要注意的点**：
+- `{%p if ... %}` 和 `{%p endif %}` 必须各自独占一个段落
+- 章节包裹要完整，不能漏掉表格后面的注释文字
+- 图片（如接触网章节的示意图）也要被包裹在 `{%p if %}` 块内
+
+需要我帮你把某个具体章节的 Word 模板修改示例写得更详细吗？或者你对序号自动化的逻辑还有疑问？
