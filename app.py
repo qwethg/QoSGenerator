@@ -17,7 +17,7 @@ TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templat
 TEMPLATE_FILE = 'QoS模板.docx'
 
 # 互提资料 - 固定模板
-CROSS_TEMPLATE_FILE = '互提资料模板-施工图-站后.docx'
+CROSS_TEMPLATE_FILE = '互提资料模板-施工图-有线通信提站后.docx'
 
 # 互提资料 - 房建表房屋顺序
 FJ_ROOM_ORDER = [
@@ -69,8 +69,8 @@ ROOM_DEFAULTS = {
         'power_remark': '',
     },
     'yrj': {
-        'name': '车站引入所厅通信引入间',
-        'area': '15', 'staff': '', 'loc': '引入所',
+        'name': '通信引入间',
+        'area': '15', 'staff': '', 'loc': '引入间',
         'power': 5, 'power_level': '一级', 'voltage': 'AC 380V±10%',
         'power_remark': '',
     },
