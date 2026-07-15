@@ -283,50 +283,77 @@ export default {
                         <i class="ri-ruler-line text-ink"></i> 电缆沟与分支槽参数
                     </h3>
                 </div>
-                <div class="card-body grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="form-group">
-                        <label class="form-label text-xs">通信站站台沟宽 (mm)</label>
-                        <input v-model.number="formData.cable_trench.trench_txz_width" type="number" class="form-input py-1 px-2 text-sm">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label text-xs">通信站站台沟深 (mm)</label>
-                        <input v-model.number="formData.cable_trench.trench_txz_depth" type="number" class="form-input py-1 px-2 text-sm">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label text-xs">中间站站台沟宽 (mm)</label>
-                        <input v-model.number="formData.cable_trench.trench_mid_width" type="number" class="form-input py-1 px-2 text-sm">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label text-xs">中间站站台沟深 (mm)</label>
-                        <input v-model.number="formData.cable_trench.trench_mid_depth" type="number" class="form-input py-1 px-2 text-sm">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label text-xs">双分支槽最小间距 (m)</label>
-                        <input v-model.number="formData.cable_trench.branch_dist_min" type="number" class="form-input py-1 px-2 text-sm">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label text-xs">通信站分支槽宽 (mm)</label>
-                        <input v-model.number="formData.cable_trench.branch_txz_width" type="number" class="form-input py-1 px-2 text-sm">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label text-xs">通信站分支槽深 (mm)</label>
-                        <input v-model.number="formData.cable_trench.branch_txz_depth" type="number" class="form-input py-1 px-2 text-sm">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label text-xs">主要房屋分支槽宽 (mm)</label>
-                        <input v-model.number="formData.cable_trench.branch_major_width" type="number" class="form-input py-1 px-2 text-sm">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label text-xs">主要房屋分支槽深 (mm)</label>
-                        <input v-model.number="formData.cable_trench.branch_major_depth" type="number" class="form-input py-1 px-2 text-sm">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label text-xs">房屋场坪槽净宽 (mm)</label>
-                        <input v-model.number="formData.cable_trench.trough_width" type="number" class="form-input py-1 px-2 text-sm">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label text-xs">房屋场坪槽净深 (mm)</label>
-                        <input v-model.number="formData.cable_trench.trough_depth" type="number" class="form-input py-1 px-2 text-sm">
+                <div class="card-body">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        
+                        <!-- 站台沟 -->
+                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                            <h4 class="text-sm font-medium text-gray-700 mb-4 flex items-center gap-1.5">
+                                <i class="ri-drag-move-line text-gray-400"></i> 站台沟 (mm)
+                            </h4>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">通信站</span>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex items-center"><span class="text-xs text-gray-400 mr-1">宽</span><input v-model.number="formData.cable_trench.trench_txz_width" type="number" class="form-input w-20 py-1 px-2 text-sm text-center"></div>
+                                        <div class="flex items-center"><span class="text-xs text-gray-400 mr-1">深</span><input v-model.number="formData.cable_trench.trench_txz_depth" type="number" class="form-input w-20 py-1 px-2 text-sm text-center"></div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">中间站</span>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex items-center"><span class="text-xs text-gray-400 mr-1">宽</span><input v-model.number="formData.cable_trench.trench_mid_width" type="number" class="form-input w-20 py-1 px-2 text-sm text-center"></div>
+                                        <div class="flex items-center"><span class="text-xs text-gray-400 mr-1">深</span><input v-model.number="formData.cable_trench.trench_mid_depth" type="number" class="form-input w-20 py-1 px-2 text-sm text-center"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 分支槽 -->
+                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                            <h4 class="text-sm font-medium text-gray-700 mb-4 flex items-center gap-1.5">
+                                <i class="ri-node-tree text-gray-400"></i> 分支槽 (mm)
+                            </h4>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">通信站</span>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex items-center"><span class="text-xs text-gray-400 mr-1">宽</span><input v-model.number="formData.cable_trench.branch_txz_width" type="number" class="form-input w-20 py-1 px-2 text-sm text-center"></div>
+                                        <div class="flex items-center"><span class="text-xs text-gray-400 mr-1">深</span><input v-model.number="formData.cable_trench.branch_txz_depth" type="number" class="form-input w-20 py-1 px-2 text-sm text-center"></div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">主要房屋</span>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex items-center"><span class="text-xs text-gray-400 mr-1">宽</span><input v-model.number="formData.cable_trench.branch_major_width" type="number" class="form-input w-20 py-1 px-2 text-sm text-center"></div>
+                                        <div class="flex items-center"><span class="text-xs text-gray-400 mr-1">深</span><input v-model.number="formData.cable_trench.branch_major_depth" type="number" class="form-input w-20 py-1 px-2 text-sm text-center"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 场坪槽与其它 -->
+                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                            <h4 class="text-sm font-medium text-gray-700 mb-4 flex items-center gap-1.5">
+                                <i class="ri-layout-masonry-line text-gray-400"></i> 场坪槽与其它
+                            </h4>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">房屋场坪槽</span>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex items-center"><span class="text-xs text-gray-400 mr-1">宽</span><input v-model.number="formData.cable_trench.trough_width" type="number" class="form-input w-20 py-1 px-2 text-sm text-center"></div>
+                                        <div class="flex items-center"><span class="text-xs text-gray-400 mr-1">深</span><input v-model.number="formData.cable_trench.trough_depth" type="number" class="form-input w-20 py-1 px-2 text-sm text-center"></div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">双槽最小间距</span>
+                                    <div class="flex items-center">
+                                        <input v-model.number="formData.cable_trench.branch_dist_min" type="number" class="form-input w-20 py-1 px-2 text-sm text-center"><span class="text-xs text-gray-400 ml-2">m</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
