@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { store } from '../store.js';
 
 // 房屋类型默认配置（与后端 ROOM_DEFAULTS 保持一致）
@@ -82,6 +82,11 @@ export default {
                 branch_major_depth: 400,
                 trough_width: 250,
                 trough_depth: 150
+            },
+
+            // 站前基础信息
+            station_front: {
+                has_qlsstdsp: false
             }
         });
 
@@ -126,7 +131,25 @@ export default {
             }
         };
 
-        return { formData, isGenerating, generate, DEFAULT_ROOM_TYPES };
+        // 站前基础信息卡片显示条件：勾选了路基/站场/桥梁/隧道任意一个
+        const showStationFrontCard = computed(() => (
+            formData.value.has_luji ||
+            formData.value.has_zhanchang ||
+            formData.value.has_qiaoliang ||
+            formData.value.has_suidao
+        ));
+
+        // 取消桥梁专业时，自动清空桥梁疏散通道视频选项
+        watch(
+            () => formData.value.has_qiaoliang,
+            (enabled) => {
+                if (!enabled) {
+                    formData.value.station_front.has_qlsstdsp = false;
+                }
+            }
+        );
+
+        return { formData, isGenerating, generate, DEFAULT_ROOM_TYPES, showStationFrontCard };
     },
     template: `
         <div class="mutual-data-view max-w-4xl mx-auto pb-12">
@@ -249,6 +272,26 @@ export default {
                         <label class="profession-checkbox" :class="{ 'active': formData.has_cheliang }">
                             <input v-model="formData.has_cheliang" type="checkbox">
                             <span>提车辆专业</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 站前基础信息 -->
+            <div v-if="showStationFrontCard" class="card mb-6 border-left-caramel">
+                <div class="card-header">
+                    <h3 class="h3 flex items-center gap-2">
+                        <i class="ri-road-map-line text-caramel"></i> 站前基础信息
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-sm text-gray-500 mb-4" style="font-size: 0.875rem; font-weight: 500; color: var(--text-secondary);">
+                        根据已勾选的站前专业补充互提资料条目，未勾选的项目不会输出到文档。
+                    </p>
+                    <div v-if="formData.has_qiaoliang" class="grid grid-cols-2 gap-3">
+                        <label class="profession-checkbox" :class="{ 'active': formData.station_front.has_qlsstdsp }">
+                            <input v-model="formData.station_front.has_qlsstdsp" type="checkbox">
+                            <span>有桥梁疏散通道视频</span>
                         </label>
                     </div>
                 </div>
