@@ -437,6 +437,40 @@ export default {
                             <span>有桥梁疏散通道视频</span>
                         </label>
                     </div>
+                    <!-- 站前三张表块导入 -->
+                    <div class="grid grid-cols-1 gap-4 mt-4">
+                        <div
+                            v-for="config in STATION_FRONT_TABLE_CONFIGS"
+                            :key="config.key"
+                            class="import-card"
+                            :class="{ 'import-card-active': formData.station_front.imported_tables[config.key].enabled }"
+                        >
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="h4">{{ config.title }}</h4>
+                                <span class="import-status" :class="formData.station_front.imported_tables[config.key].enabled ? 'import-status-active' : ''">
+                                    {{ formData.station_front.imported_tables[config.key].enabled
+                                        ? '已导入 · ' + formData.station_front.imported_tables[config.key].row_count + ' 行'
+                                        : '未导入' }}
+                                </span>
+                            </div>
+                            <p class="text-sm mb-2" style="color: var(--text-secondary); font-size: 0.8125rem;">{{ config.hint }}</p>
+                            <p v-if="formData.station_front.imported_tables[config.key].file_name" class="text-sm mb-2" style="color: var(--text-tertiary); font-size: 0.8125rem;">
+                                <i class="ri-file-excel-line"></i> {{ formData.station_front.imported_tables[config.key].file_name }}
+                            </p>
+                            <div class="flex gap-2">
+                                <button type="button" class="btn-secondary btn-sm" @click="downloadTableTemplate(config)">
+                                    <i class="ri-download-line"></i> 下载模板
+                                </button>
+                                <label class="btn-secondary btn-sm">
+                                    <i class="ri-upload-line"></i> 导入/替换
+                                    <input type="file" accept=".xlsx" hidden @change="(event) => importTableFile(config, event)">
+                                </label>
+                                <button type="button" class="btn-secondary btn-sm" @click="clearImportedTable(config.key)" :disabled="!formData.station_front.imported_tables[config.key].enabled">
+                                    <i class="ri-delete-bin-line"></i> 清空
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
