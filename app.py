@@ -376,6 +376,79 @@ def generate_qos_docx(data):
         return None, traceback.format_exc()
 
 
+TABLE_BLOCK_CONFIG = {
+    'cable_crossing_mileage': {
+        'title': '有线通信过轨里程表',
+        'header_cells': ['序号', '里程', '备   注', '根数'],
+        'title_note': '（区间无线GSM-R基站、直放站过轨已由无线通信专业计列，具体见无线区间设施设置里程表；不包含双线隧道综合洞室过轨里程，双线隧道综合洞室里程见隧道专业综合洞室里程表）',
+        'trailing_note': '注：当房屋场坪、隧道救援点等位置变化时，过轨和引下槽里程需配合调整。'
+    }
+}
+
+
+def normalize_imported_table_payload(station_front):
+    imported_tables = station_front.get('imported_tables', {}) or {}
+    result = {}
+    for key in TABLE_BLOCK_CONFIG:
+        payload = imported_tables.get(key, {}) or {}
+        rows = payload.get('rows', []) or []
+        result[key] = {
+            'enabled': safe_bool(payload.get('enabled', False)) and bool(rows),
+            'rows': rows if isinstance(rows, list) else [],
+        }
+    return result
+
+
+def delete_block_paragraph(paragraph):
+    element = paragraph._element
+    parent = element.getparent()
+    if parent is not None:
+        parent.remove(element)
+
+
+def delete_block_table(table):
+    element = table._element
+    parent = element.getparent()
+    if parent is not None:
+        parent.remove(element)
+
+
+def apply_cable_crossing_block(document, payload):
+    title = TABLE_BLOCK_CONFIG['cable_crossing_mileage']['title']
+    paragraphs = document.paragraphs
+
+    # 查找标题段落索引；若不存在（如未启用桥梁专业时模板已移除该块），直接返回
+    title_idx = None
+    for i, p in enumerate(paragraphs):
+        if p.text.strip() == title:
+            title_idx = i
+            break
+    if title_idx is None:
+        return
+
+    target_table = next(
+        tbl for tbl in document.tables
+        if [cell.text.strip() for cell in tbl.rows[0].cells] == ['序号', '里程', '备   注', '根数']
+    )
+
+    if not payload['enabled']:
+        delete_block_paragraph(paragraphs[title_idx + 2])
+        delete_block_table(target_table)
+        delete_block_paragraph(paragraphs[title_idx + 1])
+        delete_block_paragraph(paragraphs[title_idx])
+        return
+
+    while len(target_table.rows) > 1:
+        target_table._tbl.remove(target_table.rows[1]._tr)
+
+    for index, row in enumerate(payload['rows'], start=1):
+        cells = target_table.add_row().cells
+        cells[0].text = str(index)
+        cells[1].text = str(row.get('mileage', '')).strip()
+        cells[2].text = str(row.get('remark', '')).strip()
+        cells[3].text = str(row.get('count', '')).strip()
+
+
 def generate_cross_data_docx(data):
     """根据 docxtpl 模板和数据生成互提资料 docx 文件。"""
     template_path = resolve_cross_template_path()
@@ -483,6 +556,9 @@ def generate_cross_data_docx(data):
 
         rendered_doc = Document(output)
         renumber_chapter_titles(rendered_doc, chapter_flags)
+
+        imported_tables = normalize_imported_table_payload(station_front)
+        apply_cable_crossing_block(rendered_doc, imported_tables['cable_crossing_mileage'])
 
         final_output = io.BytesIO()
         rendered_doc.save(final_output)
