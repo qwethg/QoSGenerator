@@ -426,10 +426,17 @@ def apply_cable_crossing_block(document, payload):
     if title_idx is None:
         return
 
+    # 查找目标表格；若表头不匹配（如模板已移除该块或存在空白差异），直接返回
+    header_cells = TABLE_BLOCK_CONFIG['cable_crossing_mileage']['header_cells']
     target_table = next(
-        tbl for tbl in document.tables
-        if [cell.text.strip() for cell in tbl.rows[0].cells] == ['序号', '里程', '备   注', '根数']
+        (
+            tbl for tbl in document.tables
+            if [cell.text.strip() for cell in tbl.rows[0].cells] == header_cells
+        ),
+        None,
     )
+    if target_table is None:
+        return
 
     if not payload['enabled']:
         delete_block_paragraph(paragraphs[title_idx + 2])
