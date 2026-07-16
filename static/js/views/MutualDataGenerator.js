@@ -230,9 +230,14 @@ export default {
                 const worksheet = workbook.Sheets[workbook.SheetNames[0]];
                 const rawRows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
 
+                // 空数据行检查（只有表头无数据行时给出明确提示）
+                if (rawRows.length === 0) {
+                    throw new Error(`${config.title}：至少需要 1 行有效数据`);
+                }
+
                 // 校验列头是否匹配
                 const expectedHeaders = config.columns.map(column => column.label);
-                const actualHeaders = Object.keys(rawRows[0] || {});
+                const actualHeaders = Object.keys(rawRows[0]);
                 if (expectedHeaders.join('|') !== actualHeaders.join('|')) {
                     throw new Error(`${config.title}：列头不匹配，请使用下载模板`);
                 }
