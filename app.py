@@ -377,12 +377,27 @@ def generate_qos_docx(data):
 
 
 TABLE_BLOCK_CONFIG = {
+    'interval_branch_downlead': {
+        'title': '区间分支引下槽里程表',
+        'header_cells': ['序号', '里程', '备注'],
+        'title_note': '（区间无线GSM-R基站、直放站引下槽的里程由无线通信专业计列，具体见无线通信过轨预留里程表）',
+        'trailing_note': None,
+        'row_keys': ['mileage', 'remark'],
+    },
+    'bridge_reserved_downlead': {
+        'title': '桥上预留引下位置表',
+        'header_cells': ['序号', '桥梁', '桥梁引下预留处数', '备注'],
+        'title_note': None,
+        'trailing_note': None,
+        'row_keys': ['bridge_name', 'reserved_count', 'remark'],
+    },
     'cable_crossing_mileage': {
         'title': '有线通信过轨里程表',
         'header_cells': ['序号', '里程', '备   注', '根数'],
         'title_note': '（区间无线GSM-R基站、直放站过轨已由无线通信专业计列，具体见无线区间设施设置里程表；不包含双线隧道综合洞室过轨里程，双线隧道综合洞室里程见隧道专业综合洞室里程表）',
-        'trailing_note': '注：当房屋场坪、隧道救援点等位置变化时，过轨和引下槽里程需配合调整。'
-    }
+        'trailing_note': '注：当房屋场坪、隧道救援点等位置变化时，过轨和引下槽里程需配合调整。',
+        'row_keys': ['mileage', 'remark', 'count'],
+    },
 }
 
 
@@ -413,47 +428,56 @@ def delete_block_table(table):
         parent.remove(element)
 
 
-def apply_cable_crossing_block(document, payload):
-    title = TABLE_BLOCK_CONFIG['cable_crossing_mileage']['title']
-    paragraphs = document.paragraphs
+def find_table_by_header(document, header_cells):
+    for table in document.tables:
+        if [cell.text.strip() for cell in table.rows[0].cells] == header_cells:
+            return table
+    return None
 
-    # 查找标题段落索引；若不存在（如未启用桥梁专业时模板已移除该块），直接返回
-    title_idx = None
-    for i, p in enumerate(paragraphs):
-        if p.text.strip() == title:
-            title_idx = i
-            break
+
+def find_paragraph_index(document, expected_text):
+    for index, paragraph in enumerate(document.paragraphs):
+        if paragraph.text.strip() == expected_text:
+            return index
+    return None
+
+
+def apply_imported_table_block(document, config, payload):
+    title_idx = find_paragraph_index(document, config['title'])
     if title_idx is None:
         return
 
-    # 查找目标表格；若表头不匹配（如模板已移除该块或存在空白差异），直接返回
-    header_cells = TABLE_BLOCK_CONFIG['cable_crossing_mileage']['header_cells']
-    target_table = next(
-        (
-            tbl for tbl in document.tables
-            if [cell.text.strip() for cell in tbl.rows[0].cells] == header_cells
-        ),
-        None,
-    )
+    target_table = find_table_by_header(document, config['header_cells'])
     if target_table is None:
         return
 
+    title_note = config.get('title_note')
+    trailing_note = config.get('trailing_note')
+
     if not payload['enabled']:
-        delete_block_paragraph(paragraphs[title_idx + 2])
+        # 按文本内容查找并删除尾部注释、表格、标题注释、标题
+        if trailing_note:
+            trailing_idx = find_paragraph_index(document, trailing_note)
+            if trailing_idx is not None:
+                delete_block_paragraph(document.paragraphs[trailing_idx])
         delete_block_table(target_table)
-        delete_block_paragraph(paragraphs[title_idx + 1])
-        delete_block_paragraph(paragraphs[title_idx])
+        if title_note:
+            note_idx = find_paragraph_index(document, title_note)
+            if note_idx is not None:
+                delete_block_paragraph(document.paragraphs[note_idx])
+        delete_block_paragraph(document.paragraphs[title_idx])
         return
 
+    # 清空模板数据行（保留表头）
     while len(target_table.rows) > 1:
         target_table._tbl.remove(target_table.rows[1]._tr)
 
+    # 按导入顺序填充数据行，序号自动编号
     for index, row in enumerate(payload['rows'], start=1):
         cells = target_table.add_row().cells
         cells[0].text = str(index)
-        cells[1].text = str(row.get('mileage', '')).strip()
-        cells[2].text = str(row.get('remark', '')).strip()
-        cells[3].text = str(row.get('count', '')).strip()
+        for cell_index, key in enumerate(config['row_keys'], start=1):
+            cells[cell_index].text = str(row.get(key, '')).strip()
 
 
 def generate_cross_data_docx(data):
@@ -565,7 +589,8 @@ def generate_cross_data_docx(data):
         renumber_chapter_titles(rendered_doc, chapter_flags)
 
         imported_tables = normalize_imported_table_payload(station_front)
-        apply_cable_crossing_block(rendered_doc, imported_tables['cable_crossing_mileage'])
+        for block_key, config in TABLE_BLOCK_CONFIG.items():
+            apply_imported_table_block(rendered_doc, config, imported_tables[block_key])
 
         final_output = io.BytesIO()
         rendered_doc.save(final_output)

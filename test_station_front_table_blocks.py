@@ -77,3 +77,60 @@ class StationFrontTableBlockTest(unittest.TestCase):
         self.assertEqual(table.rows[2].cells[0].text.strip(), "2")
         self.assertEqual(table.rows[2].cells[1].text.strip(), "DK101+800")
         self.assertEqual(table.rows[2].cells[3].text.strip(), "4")
+
+    def test_interval_branch_downlead_block_is_removed_when_not_imported(self):
+        data = {
+            "project_name": "分支引下槽删除测试",
+            "has_luji": True,
+            "station_front": {
+                "imported_tables": {
+                    "interval_branch_downlead": {
+                        "enabled": False,
+                        "rows": []
+                    }
+                }
+            }
+        }
+
+        output, error = generate_cross_data_docx(data)
+        self.assertIsNone(error, msg=error)
+
+        doc = Document(output)
+        texts = collect_texts(doc)
+        self.assertNotIn("区间分支引下槽里程表", texts)
+        self.assertNotIn(
+            "（区间无线GSM-R基站、直放站引下槽的里程由无线通信专业计列，具体见无线通信过轨预留里程表）",
+            texts
+        )
+
+    def test_bridge_reserved_downlead_block_is_filled_when_imported(self):
+        data = {
+            "project_name": "桥上预留引下填充测试",
+            "has_qiaoliang": True,
+            "station_front": {
+                "imported_tables": {
+                    "bridge_reserved_downlead": {
+                        "enabled": True,
+                        "rows": [
+                            {"bridge_name": "特大桥A", "reserved_count": "2", "remark": "左右线各1处"}
+                        ]
+                    }
+                }
+            }
+        }
+
+        output, error = generate_cross_data_docx(data)
+        self.assertIsNone(error, msg=error)
+
+        doc = Document(output)
+        texts = collect_texts(doc)
+        self.assertIn("桥上预留引下位置表", texts)
+
+        table = next(
+            tbl for tbl in doc.tables
+            if [cell.text.strip() for cell in tbl.rows[0].cells] == ['序号', '桥梁', '桥梁引下预留处数', '备注']
+        )
+        self.assertEqual(table.rows[1].cells[0].text.strip(), "1")
+        self.assertEqual(table.rows[1].cells[1].text.strip(), "特大桥A")
+        self.assertEqual(table.rows[1].cells[2].text.strip(), "2")
+        self.assertEqual(table.rows[1].cells[3].text.strip(), "左右线各1处")
