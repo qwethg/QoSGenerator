@@ -41,6 +41,58 @@ function createDefaultRooms() {
     return rooms;
 }
 
+// 站前三张表块的列配置
+const STATION_FRONT_TABLE_CONFIGS = [
+    {
+        key: 'interval_branch_downlead',
+        title: '区间分支引下槽里程表',
+        hint: '导入后将显示该表及其配套说明文字',
+        columns: [
+            { key: 'mileage', label: '里程', required: true },
+            { key: 'remark', label: '备注', required: false }
+        ]
+    },
+    {
+        key: 'bridge_reserved_downlead',
+        title: '桥上预留引下位置表',
+        hint: '导入后将显示该表及其配套说明文字',
+        columns: [
+            { key: 'bridge_name', label: '桥梁', required: true },
+            { key: 'reserved_count', label: '桥梁引下预留处数', required: true },
+            { key: 'remark', label: '备注', required: false }
+        ]
+    },
+    {
+        key: 'cable_crossing_mileage',
+        title: '有线通信过轨里程表',
+        hint: '导入后将显示该表及其配套说明文字',
+        columns: [
+            { key: 'mileage', label: '里程', required: true },
+            { key: 'remark', label: '备注', required: false },
+            { key: 'count', label: '根数', required: true }
+        ]
+    }
+];
+
+// 创建空的导入表块状态
+function createEmptyImportedTable() {
+    return {
+        enabled: false,
+        file_name: '',
+        row_count: 0,
+        rows: []
+    };
+}
+
+// 创建三张表块的默认状态
+function createDefaultImportedTables() {
+    const result = {};
+    for (const config of STATION_FRONT_TABLE_CONFIGS) {
+        result[config.key] = createEmptyImportedTable();
+    }
+    return result;
+}
+
 export default {
     setup() {
         const formData = ref({
@@ -86,7 +138,8 @@ export default {
 
             // 站前基础信息
             station_front: {
-                has_qlsstdsp: false
+                has_qlsstdsp: false,
+                imported_tables: createDefaultImportedTables()
             }
         });
 
@@ -149,7 +202,92 @@ export default {
             }
         );
 
-        return { formData, isGenerating, generate, DEFAULT_ROOM_TYPES, showStationFrontCard };
+        // 生成模板的数据行（空行）
+        function buildTemplateRows(columns) {
+            return [
+                columns.reduce((row, column) => {
+                    row[column.label] = '';
+                    return row;
+                }, {})
+            ];
+        }
+
+        // 下载 Excel 模板
+        function downloadTableTemplate(config) {
+            const worksheet = XLSX.utils.json_to_sheet(buildTemplateRows(config.columns));
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+            XLSX.writeFile(workbook, `${config.title}.xlsx`);
+        }
+
+        // 导入 Excel 文件并解析为结构化数据
+        async function importTableFile(config, event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+
+            try {
+                const workbook = XLSX.read(await file.arrayBuffer());
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rawRows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+                // 校验列头是否匹配
+                const expectedHeaders = config.columns.map(column => column.label);
+                const actualHeaders = Object.keys(rawRows[0] || {});
+                if (expectedHeaders.join('|') !== actualHeaders.join('|')) {
+                    throw new Error(`${config.title}：列头不匹配，请使用下载模板`);
+                }
+
+                // 转换并过滤空行
+                const rows = rawRows
+                    .map(rawRow => config.columns.reduce((normalized, column) => {
+                        normalized[column.key] = String(rawRow[column.label] ?? '').trim();
+                        return normalized;
+                    }, {}))
+                    .filter(row => Object.values(row).some(Boolean));
+
+                // 校验必填列
+                for (const column of config.columns.filter(column => column.required)) {
+                    if (rows.some(row => !row[column.key])) {
+                        throw new Error(`${config.title}：${column.label}不能为空`);
+                    }
+                }
+                if (!rows.length) {
+                    throw new Error(`${config.title}：至少需要 1 行有效数据`);
+                }
+
+                // 写入 formData
+                formData.value.station_front.imported_tables[config.key] = {
+                    enabled: true,
+                    file_name: file.name,
+                    row_count: rows.length,
+                    rows
+                };
+                store.notify(`${config.title}：已导入 ${rows.length} 行数据`, 'success');
+            } catch (error) {
+                store.notify(error.message, 'error');
+            } finally {
+                // 清空 input 的 value，允许重新导入同一文件
+                event.target.value = '';
+            }
+        }
+
+        // 清空已导入的表块
+        function clearImportedTable(tableKey) {
+            formData.value.station_front.imported_tables[tableKey] = createEmptyImportedTable();
+            store.notify('已清空导入数据', 'info');
+        }
+
+        return {
+            formData,
+            isGenerating,
+            generate,
+            DEFAULT_ROOM_TYPES,
+            STATION_FRONT_TABLE_CONFIGS,
+            showStationFrontCard,
+            downloadTableTemplate,
+            importTableFile,
+            clearImportedTable
+        };
     },
     template: `
         <div class="mutual-data-view max-w-4xl mx-auto pb-12">
