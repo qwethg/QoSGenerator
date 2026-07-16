@@ -11,8 +11,8 @@ import re
 from lxml import etree
 from copy import deepcopy
 
-src = 'templates_docx/互提资料模板-施工图-有线通信提站后.docx'
-bak = 'templates_docx/互提资料模板-施工图-有线通信提站后.docx.bak3'
+src = 'templates_docx/htzl_yxtx_sgt.docx'
+bak = 'templates_docx/htzl_yxtx_sgt.docx.bak3'
 shutil.copy2(src, bak)
 print('已备份到', bak)
 

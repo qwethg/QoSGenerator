@@ -19,9 +19,8 @@ TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templat
 TEMPLATE_FILE = 'QoS模板.docx'
 
 # 互提资料 - 固定模板
-CROSS_TEMPLATE_FILE = '互提资料模板-施工图-有线通信提站后-修复版.docx'
+CROSS_TEMPLATE_FILE = 'htzl_yxtx_sgt.docx'
 CROSS_TEMPLATE_FALLBACK_FILES = [
-    '互提资料模板-施工图-有线通信提站后.docx',
     '互提资料模板-施工图-有线通信提站后 - 副本.docx',
 ]
 

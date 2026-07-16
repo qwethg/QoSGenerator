@@ -19,10 +19,10 @@ import re
 from lxml import etree
 from copy import deepcopy
 
-src = 'templates_docx/互提资料模板-施工图-有线通信提站后.docx'
+src = 'templates_docx/htzl_yxtx_sgt.docx'
 # 从 bak3（合并标签后、添加 endif 后的版本）开始
 # 但 bak3 的 endif 位置不对，需要从 bak（原始）重新开始
-bak = 'templates_docx/互提资料模板-施工图-有线通信提站后.docx.bak'
+bak = 'templates_docx/htzl_yxtx_sgt.docx.bak'
 shutil.copy2(bak, src)
 print('从原始备份恢复')
 

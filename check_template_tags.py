@@ -14,7 +14,7 @@ def extract_clean_tags(path):
     return clean
 
 with open('template_tags.txt', 'w', encoding='utf-8') as f:
-    for path in ['templates_docx/互提资料模板-施工图.docx', 'templates_docx/互提资料模板-施工图-有线通信提站后.docx']:
+    for path in ['templates_docx/互提资料模板-施工图.docx', 'templates_docx/htzl_yxtx_sgt.docx']:
         tags = extract_clean_tags(path)
         f.write(f'=== {path} ===\n')
         f.write(f'total: {len(tags)}, unique: {len(set(tags))}\n')

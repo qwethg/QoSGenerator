@@ -3,7 +3,7 @@
 from docxtpl import DocxTemplate
 import re
 
-for path in ['templates_docx/互提资料模板-施工图.docx', 'templates_docx/互提资料模板-施工图-有线通信提站后.docx']:
+for path in ['templates_docx/互提资料模板-施工图.docx', 'templates_docx/htzl_yxtx_sgt.docx']:
     doc = DocxTemplate(path)
     doc.init_docx()
     raw = doc.get_xml()

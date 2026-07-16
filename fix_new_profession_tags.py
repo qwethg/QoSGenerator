@@ -10,7 +10,7 @@ from copy import deepcopy
 from lxml import etree
 
 
-DOCX_PATH = r"templates_docx/互提资料模板-施工图-有线通信提站后.docx"
+DOCX_PATH = r"templates_docx/htzl_yxtx_sgt.docx"
 FIXED_DOCX_PATH = r"templates_docx/互提资料模板-施工图-有线通信提站后-修复版.docx"
 BACKUP_PATH = DOCX_PATH + ".bak_new_professions"
 W_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"

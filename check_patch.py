@@ -3,7 +3,7 @@
 from docxtpl import DocxTemplate
 import re
 
-doc = DocxTemplate('templates_docx/互提资料模板-施工图-有线通信提站后.docx')
+doc = DocxTemplate('templates_docx/htzl_yxtx_sgt.docx')
 doc.init_docx()
 
 # 原始 XML

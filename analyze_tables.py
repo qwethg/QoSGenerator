@@ -4,7 +4,7 @@
 """
 import docx
 
-path = 'templates_docx/互提资料模板-施工图-有线通信提站后.docx'
+path = 'templates_docx/htzl_yxtx_sgt.docx'
 doc = docx.Document(path)
 
 for ti, table in enumerate(doc.tables):

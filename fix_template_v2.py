@@ -8,8 +8,8 @@ import zipfile
 import re
 from lxml import etree
 
-src = 'templates_docx/互提资料模板-施工图-有线通信提站后.docx'
-bak = 'templates_docx/互提资料模板-施工图-有线通信提站后.docx.bak2'
+src = 'templates_docx/htzl_yxtx_sgt.docx'
+bak = 'templates_docx/htzl_yxtx_sgt.docx.bak2'
 shutil.copy2(src, bak)
 print('已备份到', bak)
 

@@ -2,7 +2,7 @@
 """修复模板中 {{ idx_ txyrjx }} 的空格问题"""
 import zipfile, re, os, tempfile, shutil
 
-src = 'templates_docx/互提资料模板-施工图-有线通信提站后.docx'
+src = 'templates_docx/htzl_yxtx_sgt.docx'
 
 with zipfile.ZipFile(src) as z:
     files = {name: z.read(name) for name in z.namelist()}

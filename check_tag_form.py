@@ -2,7 +2,7 @@
 """检查合并后 {%tr if %} 标签在 XML 中的实际形态"""
 import zipfile, re
 
-with zipfile.ZipFile('templates_docx/互提资料模板-施工图-有线通信提站后.docx') as z:
+with zipfile.ZipFile('templates_docx/htzl_yxtx_sgt.docx') as z:
     xml = z.read('word/document.xml').decode('utf-8')
 
 # 找到第一个 {%tr if 的位置

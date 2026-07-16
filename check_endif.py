@@ -1,7 +1,7 @@
 import zipfile, re
 from collections import Counter
 
-path = 'templates_docx/互提资料模板-施工图-有线通信提站后.docx'
+path = 'templates_docx/htzl_yxtx_sgt.docx'
 with zipfile.ZipFile(path) as z:
     xml = z.read('word/document.xml').decode('utf-8')
 

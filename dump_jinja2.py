@@ -31,5 +31,5 @@ data = {
     "has_cheliang": False,
 }
 
-doc = MyDocx('templates_docx/互提资料模板-施工图-有线通信提站后.docx')
+doc = MyDocx('templates_docx/htzl_yxtx_sgt.docx')
 doc.render(data)

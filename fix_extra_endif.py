@@ -3,7 +3,7 @@
 import zipfile, re
 from lxml import etree
 
-src = 'templates_docx/互提资料模板-施工图-有线通信提站后.docx'
+src = 'templates_docx/htzl_yxtx_sgt.docx'
 W_NS = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
 XML_NS = 'http://www.w3.org/XML/1998/namespace'
 

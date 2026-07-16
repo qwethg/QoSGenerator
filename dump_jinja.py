@@ -34,7 +34,7 @@ data = {
 
 # 直接加载模板，只检查语法，不生成
 try:
-    doc = MyDocx('templates_docx/互提资料模板-施工图-有线通信提站后.docx')
+    doc = MyDocx('templates_docx/htzl_yxtx_sgt.docx')
     doc.render(data)
 except Exception as e:
     print("Error:", e)
