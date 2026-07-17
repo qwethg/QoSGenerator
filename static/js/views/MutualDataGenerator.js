@@ -99,7 +99,6 @@ export default {
             // 基础信息
             project_name: '',
             design_stage: '施工图',
-            railway_type: '高速铁路',
             doc_id: '**施通-001',
             source_institute: '通号院',
             source_profession: '有线通信',
@@ -144,6 +143,18 @@ export default {
         });
 
         const isGenerating = ref(false);
+
+        // 各模块折叠状态（true 为收起，false 为展开）
+        const collapsedSections = ref({
+            station_front: false,
+            room_types: false,
+            cable_trench: false
+        });
+
+        // 切换指定模块的折叠/展开状态
+        function toggleSection(key) {
+            collapsedSections.value[key] = !collapsedSections.value[key];
+        }
 
         const generate = async () => {
             if (!formData.value.project_name.trim()) {
@@ -285,6 +296,8 @@ export default {
         return {
             formData,
             isGenerating,
+            collapsedSections,
+            toggleSection,
             generate,
             DEFAULT_ROOM_TYPES,
             STATION_FRONT_TABLE_CONFIGS,
@@ -304,20 +317,14 @@ export default {
                     </h3>
                 </div>
                 <div class="card-body">
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid gap-4" style="grid-template-columns: 1.6fr 1.1fr;">
                         <div class="form-group">
                             <label class="form-label">项目名称 <span class="required">*</span></label>
                             <input v-model="formData.project_name" type="text" class="form-input" placeholder="如：湛海高铁">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">文档编号</label>
-                            <input v-model="formData.doc_id" type="text" class="form-input" placeholder="如：互提资料-001">
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4 mt-4">
-                        <div class="form-group">
                             <label class="form-label">设计阶段 <span class="required">*</span></label>
-                            <div class="radio-group mt-2">
+                            <div class="radio-group mt-2" style="flex-wrap: nowrap; gap: 8px;">
                                 <label class="radio-label">
                                     <input v-model="formData.design_stage" type="radio" value="施工图">
                                     <span>施工图</span>
@@ -330,23 +337,18 @@ export default {
                                     <input v-model="formData.design_stage" type="radio" value="可研">
                                     <span>可研</span>
                                 </label>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">铁路类型 <span class="required">*</span></label>
-                            <div class="radio-group mt-2">
                                 <label class="radio-label">
-                                    <input v-model="formData.railway_type" type="radio" value="高速铁路">
-                                    <span>高速铁路</span>
-                                </label>
-                                <label class="radio-label">
-                                    <input v-model="formData.railway_type" type="radio" value="普速铁路">
-                                    <span>普速铁路</span>
+                                    <input v-model="formData.design_stage" type="radio" value="预可研">
+                                    <span>预可研</span>
                                 </label>
                             </div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-4 mt-4">
+                    <div class="grid grid-cols-3 gap-4 mt-4">
+                        <div class="form-group">
+                            <label class="form-label">文档编号</label>
+                            <input v-model="formData.doc_id" type="text" class="form-input" placeholder="如：互提资料-001">
+                        </div>
                         <div class="form-group">
                             <label class="form-label">提供单位</label>
                             <input v-model="formData.source_institute" type="text" class="form-input">
@@ -422,12 +424,13 @@ export default {
 
             <!-- 站前基础信息 -->
             <div v-if="showStationFrontCard" class="card mb-6 border-left-caramel">
-                <div class="card-header">
+                <div class="card-header collapsible-header" @click="toggleSection('station_front')">
                     <h3 class="h3 flex items-center gap-2">
                         <i class="ri-road-map-line text-caramel"></i> 站前基础信息
                     </h3>
+                    <i class="ri-arrow-down-s-line collapse-icon" :class="{ 'is-collapsed': collapsedSections.station_front }"></i>
                 </div>
-                <div class="card-body">
+                <div class="card-body collapsible-body" :class="{ 'is-collapsed': collapsedSections.station_front }">
                     <p class="text-sm text-gray-500 mb-4" style="font-size: 0.875rem; font-weight: 500; color: var(--text-secondary);">
                         根据已勾选的站前专业补充互提资料条目，未勾选的项目不会输出到文档。
                     </p>
@@ -476,12 +479,13 @@ export default {
 
             <!-- 房屋类型配置 -->
             <div class="card mb-6 border-left-moss">
-                <div class="card-header">
+                <div class="card-header collapsible-header" @click="toggleSection('room_types')">
                     <h3 class="h3 flex items-center gap-2">
                         <i class="ri-building-4-line text-moss"></i> 房屋类型配置
                     </h3>
+                    <i class="ri-arrow-down-s-line collapse-icon" :class="{ 'is-collapsed': collapsedSections.room_types }"></i>
                 </div>
-                <div class="card-body">
+                <div class="card-body collapsible-body" :class="{ 'is-collapsed': collapsedSections.room_types }">
                     <p class="text-sm text-gray-500 mb-4" style="font-size: 0.875rem; font-weight: 500; color: var(--text-secondary);">
                         勾选需要生成的房屋类型，直接在表格中修改参数。取消勾选则对应行不会生成。
                     </p>
@@ -522,12 +526,13 @@ export default {
 
             <!-- 电缆沟参数 -->
             <div class="card mb-6 border-left-ink">
-                <div class="card-header">
+                <div class="card-header collapsible-header" @click="toggleSection('cable_trench')">
                     <h3 class="h3 flex items-center gap-2">
                         <i class="ri-ruler-line text-ink"></i> 电缆沟与分支槽参数
                     </h3>
+                    <i class="ri-arrow-down-s-line collapse-icon" :class="{ 'is-collapsed': collapsedSections.cable_trench }"></i>
                 </div>
-                <div class="card-body">
+                <div class="card-body collapsible-body" :class="{ 'is-collapsed': collapsedSections.cable_trench }">
                     <div class="grid grid-cols-2 gap-6">
                         
                         <!-- 站台沟 -->

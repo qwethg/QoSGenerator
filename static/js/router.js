@@ -20,7 +20,7 @@ const routes = [
         path: '/mutual-data',
         name: 'MutualData',
         component: MutualDataGenerator,
-        meta: { title: '互提资料（有线通信）' }
+        meta: { title: '互提资料生成（有线通信）' }
     }
 ];
 
@@ -30,7 +30,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    document.title = to.meta.title || '工程设计自动化工具台';
+    document.title = to.meta.title || '铁路通信工程设计小工具台';
     next();
 });
 

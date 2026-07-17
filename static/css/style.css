@@ -719,3 +719,45 @@ a {
     opacity: 1;
     transform: translateX(0);
 }
+
+/* 模块折叠交互 */
+.collapsible-header {
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.collapsible-header:hover {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.collapse-icon {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--text-tertiary);
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.collapse-icon.is-collapsed {
+    transform: rotate(-90deg);
+}
+
+.collapsible-body {
+    overflow: hidden;
+    transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                padding-top 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                padding-bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    max-height: 2000px;
+    opacity: 1;
+}
+
+.collapsible-body.is-collapsed {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
