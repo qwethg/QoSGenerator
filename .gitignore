@@ -22,3 +22,7 @@ coverage.xml
 *.bak
 .worktrees/
 ~$*
+
+# 生成产物与调试输出
+jinja_source.xml
+test_output_*.docx
