@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Home from './views/Home.js';
 import QoSGenerator from './views/QoSGenerator.js';
 import MutualDataGenerator from './views/MutualDataGenerator.js';
+import About from './views/About.js';
 
 const routes = [
     {
@@ -21,6 +22,12 @@ const routes = [
         name: 'MutualData',
         component: MutualDataGenerator,
         meta: { title: '互提资料生成（有线通信）' }
+    },
+    {
+        path: '/about',
+        name: 'About',
+        component: About,
+        meta: { title: '关于' }
     }
 ];
 

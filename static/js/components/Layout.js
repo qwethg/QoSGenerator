@@ -9,7 +9,8 @@ export default {
         const menuItems = [
             { name: '首页', path: '/', icon: 'ri-home-5-line' },
             { name: 'QoS卡片生成', path: '/qos', icon: 'ri-file-word-2-line' },
-            { name: '互提资料生成', path: '/mutual-data', icon: 'ri-file-transfer-line' }
+            { name: '互提资料生成', path: '/mutual-data', icon: 'ri-file-transfer-line' },
+            { name: '关于', path: '/about', icon: 'ri-information-line' }
         ];
 
         return { store, route, menuItems };
@@ -50,12 +51,6 @@ export default {
                 <header class="navbar">
                     <div class="navbar-left">
                         <h2 class="h2">{{ route.meta.title || '工具台' }}</h2>
-                    </div>
-                    <div class="navbar-right">
-                        <div class="user-profile">
-                            <div class="avatar"><i class="ri-user-smile-line"></i></div>
-                            <span class="user-name">设计师</span>
-                        </div>
                     </div>
                 </header>
 
