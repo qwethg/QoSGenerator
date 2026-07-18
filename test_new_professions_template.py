@@ -28,48 +28,49 @@ class NewProfessionsTemplateTest(unittest.TestCase):
                 self.assertIsNone(error, msg=error)
                 self.assertIsNotNone(output)
 
-    def test_selected_chapters_are_renumbered_continuously(self):
-        data = {
-            "project_name": "章节序号测试",
-            "has_luji": True,
-            "has_qiaoliang": True,
-            "has_fangjian": True,
-            "has_nuantong": True,
-            "has_cheliang": True,
-            "has_dianli": False,
-            "has_suidao": False,
-            "has_zhanchang": False,
-            "has_qianyin": False,
-            "has_jiechuwang": False,
-            "has_wuxian": False,
-            "has_jixie": False,
-        }
-
-        output, error = generate_cross_data_docx(data)
-        self.assertIsNone(error, msg=error)
-        self.assertIsNotNone(output)
-
-        doc = Document(output)
-        headings = [p.text.strip() for p in doc.paragraphs if p.text.strip()]
-        selected_headings = [
-            text for text in headings
-            if text in {
-                '一、通用要求',
-                '二、路基专业',
-                '三、桥梁专业',
-                '四、房建',
-                '五、暖通',
-                '六、车辆',
-            }
-        ]
-
-        self.assertEqual(
-            selected_headings,
-            ['一、通用要求', '二、路基专业', '三、桥梁专业', '四、房建', '五、暖通', '六、车辆']
-        )
-        self.assertNotIn('一、房建', headings)
-        self.assertNotIn('四、桥梁专业', headings)
-        self.assertNotIn('八、车辆', headings)
+    # 下述章节序号重排测试在取消 Python 端重排后废弃（现已改由 Word 内部自动编号处理）
+    # def test_selected_chapters_are_renumbered_continuously(self):
+    #     data = {
+    #         "project_name": "章节序号测试",
+    #         "has_luji": True,
+    #         "has_qiaoliang": True,
+    #         "has_fangjian": True,
+    #         "has_nuantong": True,
+    #         "has_cheliang": True,
+    #         "has_dianli": False,
+    #         "has_suidao": False,
+    #         "has_zhanchang": False,
+    #         "has_qianyin": False,
+    #         "has_jiechuwang": False,
+    #         "has_wuxian": False,
+    #         "has_jixie": False,
+    #     }
+    # 
+    #     output, error = generate_cross_data_docx(data)
+    #     self.assertIsNone(error, msg=error)
+    #     self.assertIsNotNone(output)
+    # 
+    #     doc = Document(output)
+    #     headings = [p.text.strip() for p in doc.paragraphs if p.text.strip()]
+    #     selected_headings = [
+    #         text for text in headings
+    #         if text in {
+    #             '一、通用要求',
+    #             '二、路基专业',
+    #             '三、桥梁专业',
+    #             '四、房建',
+    #             '五、暖通',
+    #             '六、车辆',
+    #         }
+    #     ]
+    # 
+    #     self.assertEqual(
+    #         selected_headings,
+    #         ['一、通用要求', '二、路基专业', '三、桥梁专业', '四、房建', '五、暖通', '六、车辆']
+    #     )
+    #     self.assertNotIn('一、房建', headings)
+    #     self.assertNotIn('四、桥梁专业', headings)
+    #     self.assertNotIn('八、车辆', headings)
 
     def test_station_front_bridge_video_flag_is_read_from_nested_group(self):
         """站前基础信息：桥梁疏散通道视频标志从 station_front 分组读取"""

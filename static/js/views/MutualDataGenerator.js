@@ -138,6 +138,13 @@ export default {
             // 站前基础信息
             station_front: {
                 has_qlsstdsp: false,
+                // 电缆槽线路类型方案（多选）
+                line_schemes: {
+                    new_single: false,
+                    new_double: false,
+                    add_second: false,
+                    connecting: false
+                },
                 imported_tables: createDefaultImportedTables()
             }
         });
@@ -434,6 +441,35 @@ export default {
                     <p class="text-sm text-gray-500 mb-4" style="font-size: 0.875rem; font-weight: 500; color: var(--text-secondary);">
                         根据已勾选的站前专业补充互提资料条目，未勾选的项目不会输出到文档。
                     </p>
+
+                    <!-- 电缆槽线路类型（多选） -->
+                    <div class="import-card mb-4">
+                        <h4 class="h4 mb-2">
+                            <i class="ri-road-map-line"></i> 电缆槽线路类型
+                        </h4>
+                        <p class="text-sm mb-3" style="color: var(--text-secondary); font-size: 0.8125rem;">
+                            选择适用的线路类型方案，未选中的类型不会输出到文档。
+                        </p>
+                        <div class="grid grid-cols-4 gap-3">
+                            <label class="profession-checkbox" :class="{ 'active': formData.station_front.line_schemes.new_single }">
+                                <input v-model="formData.station_front.line_schemes.new_single" type="checkbox">
+                                <span>新建单线</span>
+                            </label>
+                            <label class="profession-checkbox" :class="{ 'active': formData.station_front.line_schemes.new_double }">
+                                <input v-model="formData.station_front.line_schemes.new_double" type="checkbox">
+                                <span>新建双线</span>
+                            </label>
+                            <label class="profession-checkbox" :class="{ 'active': formData.station_front.line_schemes.add_second }">
+                                <input v-model="formData.station_front.line_schemes.add_second" type="checkbox">
+                                <span>增建二线</span>
+                            </label>
+                            <label class="profession-checkbox" :class="{ 'active': formData.station_front.line_schemes.connecting }">
+                                <input v-model="formData.station_front.line_schemes.connecting" type="checkbox">
+                                <span>联络线</span>
+                            </label>
+                        </div>
+                    </div>
+
                     <div v-if="formData.has_qiaoliang" class="grid grid-cols-2 gap-3">
                         <label class="profession-checkbox" :class="{ 'active': formData.station_front.has_qlsstdsp }">
                             <input v-model="formData.station_front.has_qlsstdsp" type="checkbox">
@@ -534,7 +570,7 @@ export default {
                 </div>
                 <div class="card-body collapsible-body" :class="{ 'is-collapsed': collapsedSections.cable_trench }">
                     <div class="grid grid-cols-2 gap-6">
-                        
+
                         <!-- 站台沟 -->
                         <div class="cable-card">
                             <h4 class="cable-title">
