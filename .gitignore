@@ -1,3 +1,4 @@
+# Python
 __pycache__/
 *.pyc
 *.pyo
@@ -16,13 +17,28 @@ nosetests.xml
 coverage.xml
 *,cover
 .hypothesis/
+.pytest_cache/
+
+# IDE / Editors
 .vscode/
 .idea/
 *.swp
-*.bak
-.worktrees/
 ~$*
 
-# 生成产物与调试输出
-jinja_source.xml
-test_output_*.docx
+# OS
+Thumbs.db
+.DS_Store
+
+# 生成产物
+jinja_source*.xml
+jinja_source.txt
+template_analysis.txt
+template_tags.txt
+test_output*.docx
+
+# 模板备份
+templates_docx/*.bak
+templates_docx/*.bak*
+
+# Worktrees
+.worktrees/
