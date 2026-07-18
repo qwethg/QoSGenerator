@@ -300,6 +300,66 @@ export default {
             store.notify('已清空导入数据', 'info');
         }
 
+        const activeTrenchType = ref('trench_txz');
+        const hoveredTableKey = ref(null);
+
+        const activeTrenchLabel = computed(() => {
+            const labels = {
+                'trench_txz': '站台沟 - 通信站',
+                'trench_mid': '站台沟 - 中间站',
+                'branch_txz': '分支槽 - 通信站',
+                'branch_major': '分支槽 - 主要房屋',
+                'trough': '房屋场坪槽'
+            };
+            return labels[activeTrenchType.value];
+        });
+
+        const svgDimensions = computed(() => {
+            let w = 500;
+            let d = 400;
+            const type = activeTrenchType.value;
+            const ct = formData.value.cable_trench;
+
+            if (type === 'trench_txz') {
+                w = Number(ct.trench_txz_width) || 500;
+                d = Number(ct.trench_txz_depth) || 400;
+            } else if (type === 'trench_mid') {
+                w = Number(ct.trench_mid_width) || 400;
+                d = Number(ct.trench_mid_depth) || 400;
+            } else if (type === 'branch_txz') {
+                w = Number(ct.branch_txz_width) || 500;
+                d = Number(ct.branch_txz_depth) || 400;
+            } else if (type === 'branch_major') {
+                w = Number(ct.branch_major_width) || 400;
+                d = Number(ct.branch_major_depth) || 400;
+            } else if (type === 'trough') {
+                w = Number(ct.trough_width) || 250;
+                d = Number(ct.trough_depth) || 150;
+            }
+
+            const maxVal = Math.max(w, d, 200);
+            const scale = 80 / maxVal;
+            const svgW = Math.max(w * scale, 30);
+            const svgD = Math.max(d * scale, 30);
+            const t = 8; // wall thickness
+
+            return {
+                w,
+                d,
+                svgW,
+                svgD,
+                t,
+                outerPath: `M ${110 - svgW/2 - t} ${120 - svgD} 
+                            L ${110 - svgW/2 - t} ${120 + t} 
+                            L ${110 + svgW/2 + t} ${120 + t} 
+                            L ${110 + svgW/2 + t} ${120 - svgD} 
+                            L ${110 + svgW/2} ${120 - svgD} 
+                            L ${110 + svgW/2} ${120} 
+                            L ${110 - svgW/2} ${120} 
+                            L ${110 - svgW/2} ${120 - svgD} Z`
+            };
+        });
+
         return {
             formData,
             isGenerating,
@@ -311,7 +371,11 @@ export default {
             showStationFrontCard,
             downloadTableTemplate,
             importTableFile,
-            clearImportedTable
+            clearImportedTable,
+            activeTrenchType,
+            hoveredTableKey,
+            activeTrenchLabel,
+            svgDimensions
         };
     },
     template: `
@@ -483,13 +547,15 @@ export default {
                             :key="config.key"
                             class="import-card"
                             :class="{ 'import-card-active': formData.station_front.imported_tables[config.key].enabled }"
+                            @mouseenter="hoveredTableKey = config.key"
+                            @mouseleave="hoveredTableKey = null"
                         >
                             <div class="flex items-center justify-between mb-2">
                                 <h4 class="h4">{{ config.title }}</h4>
                                 <span class="import-status" :class="formData.station_front.imported_tables[config.key].enabled ? 'import-status-active' : ''">
                                     {{ formData.station_front.imported_tables[config.key].enabled
-                                        ? '已导入 · ' + formData.station_front.imported_tables[config.key].row_count + ' 行'
-                                        : '未导入' }}
+                                         ? '已导入 · ' + formData.station_front.imported_tables[config.key].row_count + ' 行'
+                                         : '未导入' }}
                                 </span>
                             </div>
                             <p class="text-sm mb-2" style="color: var(--text-secondary); font-size: 0.8125rem;">{{ config.hint }}</p>
@@ -508,6 +574,33 @@ export default {
                                     <i class="ri-delete-bin-line"></i> 清空
                                 </button>
                             </div>
+
+                            <!-- Excel HUD Preview -->
+                            <transition name="fade">
+                                <div v-if="hoveredTableKey === config.key && formData.station_front.imported_tables[config.key].enabled" class="excel-hud-preview">
+                                    <div class="hud-header flex items-center gap-1.5">
+                                        <i class="ri-file-excel-2-line text-moss"></i>
+                                        <span>数据预览 (仅展示前 5 行)</span>
+                                    </div>
+                                    <div class="hud-body">
+                                        <table class="hud-table">
+                                            <thead>
+                                                <tr>
+                                                    <th v-for="col in config.columns" :key="col.key">{{ col.label }}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="(row, idx) in formData.station_front.imported_tables[config.key].rows.slice(0, 5)" :key="idx">
+                                                     <td v-for="col in config.columns" :key="col.key">{{ row[col.key] }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="hud-footer" v-if="formData.station_front.imported_tables[config.key].rows.length > 5">
+                                        共 {{ formData.station_front.imported_tables[config.key].row_count }} 行数据已加载
+                                    </div>
+                                </div>
+                            </transition>
                         </div>
                     </div>
                 </div>
@@ -569,75 +662,133 @@ export default {
                     <i class="ri-arrow-down-s-line collapse-icon" :class="{ 'is-collapsed': collapsedSections.cable_trench }"></i>
                 </div>
                 <div class="card-body collapsible-body" :class="{ 'is-collapsed': collapsedSections.cable_trench }">
-                    <div class="grid grid-cols-2 gap-6">
-
-                        <!-- 站台沟 -->
-                        <div class="cable-card">
-                            <h4 class="cable-title">
-                                <i class="ri-drag-move-line"></i> 站台沟 (mm)
-                            </h4>
-                            <div class="cable-row">
-                                <span class="cable-label">通信站</span>
-                                <div class="cable-inputs">
-                                    <div class="cable-input-group"><span class="cable-input-prefix">宽</span><input v-model.number="formData.cable_trench.trench_txz_width" type="number" class="cable-input"></div>
-                                    <div class="cable-input-group"><span class="cable-input-prefix">深</span><input v-model.number="formData.cable_trench.trench_txz_depth" type="number" class="cable-input"></div>
-                                </div>
-                            </div>
-                            <div class="cable-row">
-                                <span class="cable-label">中间站</span>
-                                <div class="cable-inputs">
-                                    <div class="cable-input-group"><span class="cable-input-prefix">宽</span><input v-model.number="formData.cable_trench.trench_mid_width" type="number" class="cable-input"></div>
-                                    <div class="cable-input-group"><span class="cable-input-prefix">深</span><input v-model.number="formData.cable_trench.trench_mid_depth" type="number" class="cable-input"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 分支槽 -->
-                        <div class="cable-card">
-                            <h4 class="cable-title">
-                                <i class="ri-node-tree"></i> 分支槽 (mm)
-                            </h4>
-                            <div class="cable-row">
-                                <span class="cable-label">通信站</span>
-                                <div class="cable-inputs">
-                                    <div class="cable-input-group"><span class="cable-input-prefix">宽</span><input v-model.number="formData.cable_trench.branch_txz_width" type="number" class="cable-input"></div>
-                                    <div class="cable-input-group"><span class="cable-input-prefix">深</span><input v-model.number="formData.cable_trench.branch_txz_depth" type="number" class="cable-input"></div>
-                                </div>
-                            </div>
-                            <div class="cable-row">
-                                <span class="cable-label">主要房屋</span>
-                                <div class="cable-inputs">
-                                    <div class="cable-input-group"><span class="cable-input-prefix">宽</span><input v-model.number="formData.cable_trench.branch_major_width" type="number" class="cable-input"></div>
-                                    <div class="cable-input-group"><span class="cable-input-prefix">深</span><input v-model.number="formData.cable_trench.branch_major_depth" type="number" class="cable-input"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 场坪槽与其它 (跨两列显示) -->
-                        <div class="cable-card" style="grid-column: span 2;">
-                            <h4 class="cable-title">
-                                <i class="ri-layout-masonry-line"></i> 场坪槽与其它
-                            </h4>
+                    <div class="trench-layout-container">
+                        <!-- Left Side: Inputs -->
+                        <div class="trench-inputs-panel">
                             <div class="grid grid-cols-2 gap-6">
-                                <div class="cable-row" style="margin-bottom: 0;">
-                                    <span class="cable-label">房屋场坪槽</span>
-                                    <div class="cable-inputs">
-                                        <div class="cable-input-group"><span class="cable-input-prefix">宽</span><input v-model.number="formData.cable_trench.trough_width" type="number" class="cable-input"></div>
-                                        <div class="cable-input-group"><span class="cable-input-prefix">深</span><input v-model.number="formData.cable_trench.trough_depth" type="number" class="cable-input"></div>
+
+                                <!-- 站台沟 -->
+                                <div class="cable-card" :class="{ 'active-preview': activeTrenchType.startsWith('trench_') }">
+                                    <h4 class="cable-title">
+                                        <i class="ri-drag-move-line"></i> 站台沟 (mm)
+                                    </h4>
+                                    <div class="cable-row">
+                                        <span class="cable-label">通信站</span>
+                                        <div class="cable-inputs">
+                                            <div class="cable-input-group"><span class="cable-input-prefix">宽</span><input v-model.number="formData.cable_trench.trench_txz_width" type="number" class="cable-input" @focus="activeTrenchType = 'trench_txz'"></div>
+                                            <div class="cable-input-group"><span class="cable-input-prefix">深</span><input v-model.number="formData.cable_trench.trench_txz_depth" type="number" class="cable-input" @focus="activeTrenchType = 'trench_txz'"></div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="cable-row" style="margin-bottom: 0;">
-                                    <span class="cable-label">双槽最小间距</span>
-                                    <div class="cable-inputs">
-                                        <div class="cable-input-group">
-                                            <input v-model.number="formData.cable_trench.branch_dist_min" type="number" class="cable-input">
-                                            <span class="cable-input-prefix" style="margin-left:4px; margin-right:0;">m</span>
+                                    <div class="cable-row">
+                                        <span class="cable-label">中间站</span>
+                                        <div class="cable-inputs">
+                                            <div class="cable-input-group"><span class="cable-input-prefix">宽</span><input v-model.number="formData.cable_trench.trench_mid_width" type="number" class="cable-input" @focus="activeTrenchType = 'trench_mid'"></div>
+                                            <div class="cable-input-group"><span class="cable-input-prefix">深</span><input v-model.number="formData.cable_trench.trench_mid_depth" type="number" class="cable-input" @focus="activeTrenchType = 'trench_mid'"></div>
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- 分支槽 -->
+                                <div class="cable-card" :class="{ 'active-preview': activeTrenchType.startsWith('branch_') }">
+                                    <h4 class="cable-title">
+                                        <i class="ri-node-tree"></i> 分支槽 (mm)
+                                    </h4>
+                                    <div class="cable-row">
+                                        <span class="cable-label">通信站</span>
+                                        <div class="cable-inputs">
+                                            <div class="cable-input-group"><span class="cable-input-prefix">宽</span><input v-model.number="formData.cable_trench.branch_txz_width" type="number" class="cable-input" @focus="activeTrenchType = 'branch_txz'"></div>
+                                            <div class="cable-input-group"><span class="cable-input-prefix">深</span><input v-model.number="formData.cable_trench.branch_txz_depth" type="number" class="cable-input" @focus="activeTrenchType = 'branch_txz'"></div>
+                                        </div>
+                                    </div>
+                                    <div class="cable-row">
+                                        <span class="cable-label">主要房屋</span>
+                                        <div class="cable-inputs">
+                                            <div class="cable-input-group"><span class="cable-input-prefix">宽</span><input v-model.number="formData.cable_trench.branch_major_width" type="number" class="cable-input" @focus="activeTrenchType = 'branch_major'"></div>
+                                            <div class="cable-input-group"><span class="cable-input-prefix">深</span><input v-model.number="formData.cable_trench.branch_major_depth" type="number" class="cable-input" @focus="activeTrenchType = 'branch_major'"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 场坪槽与其它 (跨两列显示) -->
+                                <div class="cable-card" style="grid-column: span 2;" :class="{ 'active-preview': activeTrenchType === 'trough' }">
+                                    <h4 class="cable-title">
+                                        <i class="ri-layout-masonry-line"></i> 场坪槽与其它
+                                    </h4>
+                                    <div class="grid grid-cols-2 gap-6">
+                                        <div class="cable-row" style="margin-bottom: 0;">
+                                            <span class="cable-label">房屋场坪槽</span>
+                                            <div class="cable-inputs">
+                                                <div class="cable-input-group"><span class="cable-input-prefix">宽</span><input v-model.number="formData.cable_trench.trough_width" type="number" class="cable-input" @focus="activeTrenchType = 'trough'"></div>
+                                                <div class="cable-input-group"><span class="cable-input-prefix">深</span><input v-model.number="formData.cable_trench.trough_depth" type="number" class="cable-input" @focus="activeTrenchType = 'trough'"></div>
+                                            </div>
+                                        </div>
+                                        <div class="cable-row" style="margin-bottom: 0;">
+                                            <span class="cable-label">双槽最小间距</span>
+                                            <div class="cable-inputs">
+                                                <div class="cable-input-group">
+                                                    <input v-model.number="formData.cable_trench.branch_dist_min" type="number" class="cable-input">
+                                                    <span class="cable-input-prefix" style="margin-left:4px; margin-right:0;">m</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
 
+                        <!-- Right Side: SVG Visualization -->
+                        <div class="trench-preview-panel">
+                            <div class="preview-panel-header">
+                                <i class="ri-draft-line text-ink"></i>
+                                <span>断面图实时预览: </span>
+                                <strong class="text-ink">{{ activeTrenchLabel }}</strong>
+                            </div>
+                            <div class="preview-panel-body">
+                                <svg viewBox="0 0 220 180" class="trench-svg">
+                                    <!-- Blueprint grid pattern background -->
+                                    <defs>
+                                        <pattern id="svgGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+                                            <path d="M 10 0 L 0 0 0 10" fill="none" stroke="var(--border-color)" stroke-width="0.5"/>
+                                        </pattern>
+                                    </defs>
+                                    <rect width="100%" height="100%" fill="url(#svgGrid)" rx="6"/>
+                                    
+                                    <!-- Center reference axis (light dashed lines) -->
+                                    <line x1="110" y1="10" x2="110" y2="150" stroke="var(--border-color-strong)" stroke-width="0.8" stroke-dasharray="3,3" />
+                                    <line x1="20" y1="120" x2="200" y2="120" stroke="var(--border-color-strong)" stroke-width="0.8" stroke-dasharray="3,3" />
+                                    
+                                    <!-- Concrete wall path (U-shape) -->
+                                    <path :d="svgDimensions.outerPath" fill="var(--accent-moss-soft)" stroke="var(--accent-moss)" stroke-width="1.5" stroke-linejoin="round" class="trench-concrete-path"/>
+                                    
+                                    <!-- Lid (slightly transparent, showing slot interface) -->
+                                    <rect :x="110 - svgDimensions.svgW/2 - svgDimensions.t - 2" :y="120 - svgDimensions.svgD - svgDimensions.t" :width="svgDimensions.svgW + svgDimensions.t*2 + 4" :height="svgDimensions.t" rx="2" fill="var(--bg-surface)" stroke="var(--accent-moss)" stroke-width="1.2" opacity="0.8" class="trench-lid"/>
+                                    
+                                    <!-- Cable representations (inside) -->
+                                    <circle :cx="110 - svgDimensions.svgW/4" :cy="120 - 6" r="4" fill="var(--accent-caramel)" opacity="0.9" />
+                                    <circle :cx="110" :cy="120 - 5" r="3.5" fill="var(--accent-ink)" opacity="0.9" />
+                                    <circle :cx="110 + svgDimensions.svgW/4" :cy="120 - 7" r="4.5" fill="var(--accent-moss)" opacity="0.9" />
+                                    
+                                    <!-- Width Dimension Line -->
+                                    <!-- line -->
+                                    <line :x1="110 - svgDimensions.svgW/2" :y1="120 + svgDimensions.t + 18" :x2="110 + svgDimensions.svgW/2" :y2="120 + svgDimensions.t + 18" stroke="var(--text-secondary)" stroke-width="0.8" />
+                                    <!-- tick marks -->
+                                    <line :x1="110 - svgDimensions.svgW/2" :y1="120 + svgDimensions.t + 14" :x2="110 - svgDimensions.svgW/2" :y2="120 + svgDimensions.t + 22" stroke="var(--text-secondary)" stroke-width="0.8" />
+                                    <line :x1="110 + svgDimensions.svgW/2" :y1="120 + svgDimensions.t + 14" :x2="110 + svgDimensions.svgW/2" :y2="120 + svgDimensions.t + 22" stroke="var(--text-secondary)" stroke-width="0.8" />
+                                    <!-- width text -->
+                                    <text x="110" :y="120 + svgDimensions.t + 30" text-anchor="middle" font-size="9" fill="var(--text-secondary)" font-family="Inter, sans-serif" font-weight="500">宽: {{ svgDimensions.w }} mm</text>
+                                    
+                                    <!-- Depth Dimension Line -->
+                                    <!-- line -->
+                                    <line :x1="110 + svgDimensions.svgW/2 + svgDimensions.t + 18" :y1="120 - svgDimensions.svgD" :x2="110 + svgDimensions.svgW/2 + svgDimensions.t + 18" :y2="120" stroke="var(--text-secondary)" stroke-width="0.8" />
+                                    <!-- tick marks -->
+                                    <line :x1="110 + svgDimensions.svgW/2 + svgDimensions.t + 14" :y1="120 - svgDimensions.svgD" :x2="110 + svgDimensions.svgW/2 + svgDimensions.t + 22" :y2="120 - svgDimensions.svgD" stroke="var(--text-secondary)" stroke-width="0.8" />
+                                    <line :x1="110 + svgDimensions.svgW/2 + svgDimensions.t + 14" :y1="120" :x2="110 + svgDimensions.svgW/2 + svgDimensions.t + 22" :y2="120" stroke="var(--text-secondary)" stroke-width="0.8" />
+                                    <!-- depth text -->
+                                    <text :x="110 + svgDimensions.svgW/2 + svgDimensions.t + 24" :y="120 - svgDimensions.svgD/2 + 3" font-size="9" fill="var(--text-secondary)" font-family="Inter, sans-serif" font-weight="500">深: {{ svgDimensions.d }} mm</text>
+                                </svg>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

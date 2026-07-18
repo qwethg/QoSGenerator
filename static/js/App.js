@@ -6,6 +6,7 @@ export default {
         Layout
     },
     setup() {
+        store.applyTheme();
         return { store };
     },
     template: `

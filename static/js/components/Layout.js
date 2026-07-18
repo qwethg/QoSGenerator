@@ -52,6 +52,12 @@ export default {
                     <div class="navbar-left">
                         <h2 class="h2">{{ route.meta.title || '工具台' }}</h2>
                     </div>
+                    <div class="navbar-right">
+                        <button class="theme-toggle-btn" @click="store.toggleTheme()" :title="store.theme === 'blueprint' ? '切换为浅色暖灰模式' : '切换为工程蓝图模式'">
+                            <i :class="store.theme === 'blueprint' ? 'ri-sun-line' : 'ri-compass-3-line'"></i>
+                            <span>{{ store.theme === 'blueprint' ? '日间暖灰' : '工程蓝图' }}</span>
+                        </button>
+                    </div>
                 </header>
 
                 <!-- Page Content Area -->

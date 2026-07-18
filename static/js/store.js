@@ -19,5 +19,24 @@ export const store = reactive({
     },
     removeNotification(id) {
         this.notifications = this.notifications.filter(n => n.id !== id);
+    },
+
+    // 主题切换系统
+    theme: localStorage.getItem('theme') || 'light',
+    toggleTheme() {
+        const nextTheme = this.theme === 'light' ? 'blueprint' : 'light';
+        this.setTheme(nextTheme);
+    },
+    setTheme(theme) {
+        this.theme = theme;
+        localStorage.setItem('theme', theme);
+        this.applyTheme();
+    },
+    applyTheme() {
+        if (this.theme === 'blueprint') {
+            document.documentElement.classList.add('blueprint-theme');
+        } else {
+            document.documentElement.classList.remove('blueprint-theme');
+        }
     }
 });
