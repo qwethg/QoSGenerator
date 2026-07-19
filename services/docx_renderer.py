@@ -16,7 +16,7 @@ from services.xml_helper import apply_imported_table_block
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates_docx')
 
-TEMPLATE_FILE = 'QoS模板.docx'
+TEMPLATE_FILE = 'QoS-template.docx'
 CROSS_TEMPLATE_FILE = 'htzl_yxtx_sgt.docx'
 CROSS_TEMPLATE_FALLBACK_FILES = [
     '互提资料模板-施工图-有线通信提站后 - 副本.docx',
@@ -245,8 +245,22 @@ def generate_cross_data_docx(data):
 
         # 站前基础信息分组映射
         station_front = data.get('station_front', {}) or {}
+        
+        # 兼容旧版本前端与缓存：如字段缺失则默认开启通信站并用 "XXX" 填充地点
+        has_station_txz_val = station_front.get('has_station_txz', None)
+        if has_station_txz_val is None:
+            has_station_txz = True
+        else:
+            has_station_txz = safe_bool(has_station_txz_val)
+            
+        station_txz_loc = station_front.get('station_txz_loc', '')
+        if not station_txz_loc:
+            station_txz_loc = 'XXX'
+
         station_front_flags = {
             'has_qlsstdsp': safe_bool(station_front.get('has_qlsstdsp', False)),
+            'has_station_txz': has_station_txz,
+            'station_txz_loc': station_txz_loc,
         }
 
         # 电缆槽线路类型方案（多选，归属站前基础信息模块）
@@ -317,6 +331,11 @@ def generate_cross_data_docx(data):
         for key, value in data.items():
             if isinstance(value, str) and key not in context:
                 context[key] = make_rt(value)
+
+        # 计算导入表格的启用状态，供模板 Jinja2 控制显示/隐藏相关描述
+        imported_tables = normalize_imported_table_payload(station_front)
+        for block_key, block_val in imported_tables.items():
+            context[f'has_{block_key}'] = block_val['enabled']
 
         doc.render(context)
 

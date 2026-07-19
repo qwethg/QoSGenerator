@@ -16,7 +16,7 @@ app.jinja_env.auto_reload = True
 
 # 保持部分展示信息所需的常量
 TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates_docx')
-TEMPLATE_FILE = 'QoS模板.docx'
+TEMPLATE_FILE = 'QoS-template.docx'
 
 
 def translate_error(error_msg):

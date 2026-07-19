@@ -138,6 +138,8 @@ export default {
             // 站前基础信息
             station_front: {
                 has_qlsstdsp: false,
+                has_station_txz: false,
+                station_txz_loc: '',
                 // 电缆槽线路类型方案（多选）
                 line_schemes: {
                     new_single: false,
@@ -216,6 +218,17 @@ export default {
             (enabled) => {
                 if (!enabled) {
                     formData.value.station_front.has_qlsstdsp = false;
+                }
+            }
+        );
+
+        // 取消站场专业时，自动清空通信站相关选项
+        watch(
+            () => formData.value.has_zhanchang,
+            (enabled) => {
+                if (!enabled) {
+                    formData.value.station_front.has_station_txz = false;
+                    formData.value.station_front.station_txz_loc = '';
                 }
             }
         );
@@ -534,11 +547,27 @@ export default {
                         </div>
                     </div>
 
-                    <div v-if="formData.has_qiaoliang" class="grid grid-cols-2 gap-3">
-                        <label class="profession-checkbox" :class="{ 'active': formData.station_front.has_qlsstdsp }">
-                            <input v-model="formData.station_front.has_qlsstdsp" type="checkbox">
-                            <span>有桥梁疏散通道视频</span>
-                        </label>
+                    <div class="grid grid-cols-1 gap-3">
+                        <div v-if="formData.has_qiaoliang">
+                            <label class="profession-checkbox" :class="{ 'active': formData.station_front.has_qlsstdsp }">
+                                <input v-model="formData.station_front.has_qlsstdsp" type="checkbox">
+                                <span>有桥梁疏散通道视频</span>
+                            </label>
+                        </div>
+                        
+                        <!-- 站场专业：设置通信站 -->
+                        <div v-if="formData.has_zhanchang" class="flex items-center gap-3">
+                            <label class="profession-checkbox" :class="{ 'active': formData.station_front.has_station_txz }" style="flex-shrink: 0; margin-bottom: 0;">
+                                <input v-model="formData.station_front.has_station_txz" type="checkbox">
+                                <span>设置通信站</span>
+                            </label>
+                            <transition name="fade">
+                                <div v-if="formData.station_front.has_station_txz" class="form-group flex items-center gap-2" style="margin-bottom: 0; width: 100%;">
+                                    <label class="form-label" style="margin-bottom: 0; flex-shrink: 0; font-size: 0.8125rem;">通信站设置地点：</label>
+                                    <input v-model="formData.station_front.station_txz_loc" type="text" class="form-input py-1.5 px-2.5 text-[0.875rem]" placeholder="如：横岗" style="max-width: 250px;">
+                                </div>
+                            </transition>
+                        </div>
                     </div>
                     <!-- 站前三张表块导入 -->
                     <div class="grid grid-cols-1 gap-4 mt-4">
