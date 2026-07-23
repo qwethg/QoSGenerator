@@ -32,7 +32,7 @@ export default {
     template: `
         <div class="home-view">
             <div class="welcome-section">
-                <h1 class="h1">欢迎使用铁路通信设计辅助台</h1>
+                <h1 class="h1 font-bold tracking-tight">欢迎使用铁路通信辅助设计</h1>
                 <p class="text-body text-secondary mt-2">选择下方工具开始您的工作，大幅提升文档生成效率。</p>
             </div>
             
@@ -46,8 +46,8 @@ export default {
                     <div class="tool-icon-wrapper" :style="{ backgroundColor: tool.color + '1A', color: tool.color }">
                         <i :class="tool.icon"></i>
                     </div>
-                    <h3 class="h3">{{ tool.title }}</h3>
-                    <p class="text-sm text-secondary">{{ tool.description }}</p>
+                    <h3 class="h3 font-semibold">{{ tool.title }}</h3>
+                    <p class="text-sm text-secondary leading-relaxed">{{ tool.description }}</p>
                     <div class="tool-action">
                         <span>进入工具</span>
                         <i class="ri-arrow-right-line"></i>
@@ -57,3 +57,5 @@ export default {
         </div>
     `
 };
+
+

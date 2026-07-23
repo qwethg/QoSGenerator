@@ -73,6 +73,17 @@ export default {
             }
         };
 
+        const searchQuery = ref('');
+
+        const filteredOpinionGroups = computed(() => {
+            if (!searchQuery.value.trim()) return opinionGroups;
+            const query = searchQuery.value.trim().toLowerCase();
+            return opinionGroups.map(group => ({
+                title: group.title,
+                items: group.items.filter(item => item.toLowerCase().includes(query))
+            })).filter(group => group.items.length > 0);
+        });
+
         const drawer = ref({
             isOpen: false,
             activeKey: ''
@@ -85,6 +96,7 @@ export default {
 
         const closeDrawer = () => {
             drawer.value.isOpen = false;
+            searchQuery.value = '';
         };
 
         const opinionGroups = [
@@ -146,7 +158,7 @@ export default {
                 formData.value[key] = formattedText;
             }
 
-            store.notify(`已插入复核意见 ${nextNum}`, 'success', 1000);
+            store.notify(`已插入复核意见 #${nextNum}`, 'success', 1200);
         };
 
         return { 
@@ -157,19 +169,22 @@ export default {
             showGongsi, 
             generate,
             drawer,
+            searchQuery,
+            filteredOpinionGroups,
             openDrawer,
             closeDrawer,
-            opinionGroups,
             insertOpinion
         };
     },
     template: `
         <div class="qos-view max-w-4xl mx-auto">
             <div class="card mb-6">
-                <div class="card-header">
+                <div class="card-header flex justify-between items-center">
                     <h3 class="h3 flex items-center gap-2">
-                        <i class="ri-information-line text-moss"></i> 项目信息
+                        <i class="ri-information-line text-moss"></i> 
+                        <span>项目基本信息</span>
                     </h3>
+                    <span class="text-xs text-tertiary font-mono">QoS-STATION-FORM</span>
                 </div>
                 <div class="card-body">
                     <div class="grid grid-cols-2 gap-4">
@@ -179,7 +194,7 @@ export default {
                         </div>
                         <div class="form-group">
                             <label class="form-label">设计范围 <span class="required">*</span></label>
-                            <input v-model="formData.design_range" type="text" class="form-input" placeholder="如：厦深线">
+                            <input v-model="formData.design_range" type="text" class="form-input" placeholder="如：厦深线 K12+000 ~ K45+200">
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
@@ -197,19 +212,19 @@ export default {
                         <div class="radio-group">
                             <label class="radio-label">
                                 <input v-model="formData.final_audit_level" type="radio" value="所级">
-                                <span>所级</span>
+                                <span>所级 (设表08 + 所室级)</span>
                             </label>
                             <label class="radio-label">
                                 <input v-model="formData.final_audit_level" type="radio" value="院级">
-                                <span>院级</span>
+                                <span>院级 (含院级审查)</span>
                             </label>
                             <label class="radio-label">
                                 <input v-model="formData.final_audit_level" type="radio" value="公司级">
-                                <span>公司级</span>
+                                <span>公司级 (全流程审签)</span>
                             </label>
                         </div>
-                        <div class="hint-box mt-2">
-                            <i class="ri-lightbulb-line"></i> {{ levelHint }}
+                        <div class="hint-box mt-3">
+                            <i class="ri-lightbulb-line text-caramel"></i> {{ levelHint }}
                         </div>
                     </div>
                 </div>
@@ -218,16 +233,17 @@ export default {
             <div class="card mb-6 border-left-moss">
                 <div class="card-header flex justify-between items-center">
                     <h3 class="h3 flex items-center gap-2">
-                        <i class="ri-edit-2-line text-moss"></i> 复核意见（设表08-1/2）
+                        <i class="ri-edit-2-line text-moss"></i> 
+                        <span>复核意见（设表 08-1/2）</span>
                     </h3>
                     <button type="button" class="btn btn-secondary btn-sm" @click="openDrawer('review_opinions_text')">
-                        <i class="ri-book-read-line text-moss"></i> 常用句库
+                        <i class="ri-book-read-line text-moss"></i> 常用句库抽屉
                     </button>
                 </div>
                 <div class="card-body">
                     <div class="form-group">
                         <label class="form-label">复核意见内容</label>
-                        <textarea v-model="formData.review_opinions_text" class="form-textarea" placeholder="每行一条意见，序号请自动追加或自行编写..."></textarea>
+                        <textarea v-model="formData.review_opinions_text" class="form-textarea" placeholder="每行一条意见，点击常用句库可自动编号追加..."></textarea>
                     </div>
                     <div class="form-group">
                         <label class="form-label">复核确认意见</label>
@@ -239,16 +255,17 @@ export default {
             <div class="card mb-6 border-left-moss">
                 <div class="card-header flex justify-between items-center">
                     <h3 class="h3 flex items-center gap-2">
-                        <i class="ri-shield-check-line text-moss"></i> 所室级审查意见（设表09-1）
+                        <i class="ri-shield-check-line text-moss"></i> 
+                        <span>所室级审查意见（设表 09-1）</span>
                     </h3>
                     <button type="button" class="btn btn-secondary btn-sm" @click="openDrawer('audit_suoshi_text')">
-                        <i class="ri-book-read-line text-moss"></i> 常用句库
+                        <i class="ri-book-read-line text-moss"></i> 常用句库抽屉
                     </button>
                 </div>
                 <div class="card-body">
                     <div class="form-group">
                         <label class="form-label">审查意见内容</label>
-                        <textarea v-model="formData.audit_suoshi_text" class="form-textarea" placeholder="每行一条意见，序号请自动追加或自行编写..."></textarea>
+                        <textarea v-model="formData.audit_suoshi_text" class="form-textarea" placeholder="每行一条意见，点击常用句库可自动编号追加..."></textarea>
                     </div>
                 </div>
             </div>
@@ -257,16 +274,17 @@ export default {
                 <div v-if="showYuan" class="card mb-6 border-left-ink">
                     <div class="card-header flex justify-between items-center">
                         <h3 class="h3 flex items-center gap-2">
-                            <i class="ri-shield-star-line text-ink"></i> 院级审查意见（设表09-1）
+                            <i class="ri-shield-star-line text-ink"></i> 
+                            <span>院级审查意见（设表 09-1）</span>
                         </h3>
                         <button type="button" class="btn btn-secondary btn-sm" @click="openDrawer('audit_yuan_text')">
-                            <i class="ri-book-read-line text-ink"></i> 常用句库
+                            <i class="ri-book-read-line text-ink"></i> 常用句库抽屉
                         </button>
                     </div>
                     <div class="card-body">
                         <div class="form-group">
                             <label class="form-label">审查意见内容</label>
-                            <textarea v-model="formData.audit_yuan_text" class="form-textarea" placeholder="每行一条意见，序号请自动追加或自行编写..."></textarea>
+                            <textarea v-model="formData.audit_yuan_text" class="form-textarea" placeholder="每行一条意见，点击常用句库可自动编号追加..."></textarea>
                         </div>
                     </div>
                 </div>
@@ -276,25 +294,26 @@ export default {
                 <div v-if="showGongsi" class="card mb-6 border-left-caramel">
                     <div class="card-header flex justify-between items-center">
                         <h3 class="h3 flex items-center gap-2">
-                            <i class="ri-building-line text-caramel"></i> 公司级审查意见（设表09-1）
+                            <i class="ri-building-line text-caramel"></i> 
+                            <span>公司级审查意见（设表 09-1）</span>
                         </h3>
                         <button type="button" class="btn btn-secondary btn-sm" @click="openDrawer('audit_gongsi_text')">
-                            <i class="ri-book-read-line text-caramel"></i> 常用句库
+                            <i class="ri-book-read-line text-caramel"></i> 常用句库抽屉
                         </button>
                     </div>
                     <div class="card-body">
                         <div class="form-group">
                             <label class="form-label">审查意见内容</label>
-                            <textarea v-model="formData.audit_gongsi_text" class="form-textarea" placeholder="每行一条意见，序号请自动追加或自行编写..."></textarea>
+                            <textarea v-model="formData.audit_gongsi_text" class="form-textarea" placeholder="每行一条意见，点击常用句库可自动编号追加..."></textarea>
                         </div>
                     </div>
                 </div>
             </transition>
 
-            <div class="flex justify-center mt-8">
+            <div class="flex justify-center mt-8 mb-12">
                 <button @click="generate" :disabled="isGenerating" class="btn btn-primary btn-large" :class="{ 'is-generating': isGenerating }">
                     <i :class="isGenerating ? 'ri-loader-4-line spin' : 'ri-file-word-2-line'"></i>
-                    {{ isGenerating ? '生成中...' : '生成 QoS 文件' }}
+                    <span>{{ isGenerating ? '正在生成 QoS 文档...' : '生成并下载 QoS 审查卡片' }}</span>
                 </button>
             </div>
 
@@ -303,14 +322,20 @@ export default {
                 <div class="qos-drawer-header">
                     <h4 class="h4 flex items-center gap-2">
                         <i class="ri-book-read-line text-moss"></i>
-                        <span>常用审查意见库</span>
+                        <span>常用审查意见词库</span>
                     </h4>
-                    <button class="drawer-close-btn" @click="closeDrawer">
+                    <button class="drawer-close-btn" @click="closeDrawer" title="关闭抽屉">
                         <i class="ri-close-line"></i>
                     </button>
                 </div>
+                <div class="px-6 pt-4 pb-2">
+                    <div class="relative">
+                        <input v-model="searchQuery" type="text" class="form-input text-xs pl-8" placeholder="搜索意见常用语关键词...">
+                        <i class="ri-search-line absolute left-2.5 top-2.5 text-tertiary text-xs"></i>
+                    </div>
+                </div>
                 <div class="qos-drawer-body">
-                    <div v-for="group in opinionGroups" :key="group.title" class="opinion-group">
+                    <div v-for="group in filteredOpinionGroups" :key="group.title" class="opinion-group">
                         <h5 class="opinion-group-title">{{ group.title }}</h5>
                         <div class="opinion-list">
                             <div v-for="item in group.items" :key="item" class="opinion-item" @click="insertOpinion(item)">
@@ -319,6 +344,9 @@ export default {
                             </div>
                         </div>
                     </div>
+                    <div v-if="filteredOpinionGroups.length === 0" class="text-xs text-tertiary text-center py-6">
+                        未匹配到相关意见，请尝试其他关键词
+                    </div>
                 </div>
             </div>
             <!-- Drawer Backdrop -->
@@ -326,3 +354,4 @@ export default {
         </div>
     `
 };
+

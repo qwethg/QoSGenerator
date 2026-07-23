@@ -1,35 +1,35 @@
 :root {
-    /* Color Palette: Warm, organic, premium */
-    --bg-base: #f7f6f2; /* 整体背景 */
-    --bg-surface: #ffffff; /* 容器背景 */
-    --bg-surface-hover: #f1f0ea; 
+    /* Color Palette: Technical Studio Light Mode (工程图纸日间风格) */
+    --bg-base: #f6f8fa; /* 整体图纸纸张背景 */
+    --bg-surface: #ffffff; /* 卡片容器背景 */
+    --bg-surface-hover: #f1f5f9; 
     
-    --text-primary: #2d2a26;
-    --text-secondary: #5c5850;
-    --text-tertiary: #8b867c;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-tertiary: #94a3b8;
     
-    --border-color: rgba(45, 42, 38, 0.1);
-    --border-color-strong: rgba(45, 42, 38, 0.2);
+    --border-color: rgba(15, 23, 42, 0.08);
+    --border-color-strong: rgba(15, 23, 42, 0.16);
     
-    /* Brand/Accent Colors */
-    --accent-moss: #5d6a4c;
-    --accent-moss-light: #728060;
-    --accent-moss-soft: rgba(93, 106, 76, 0.1);
+    /* Brand/Accent Colors (Blueprint Blue & Amber) */
+    --accent-moss: #1e3a8a; /* 深蓝图蓝 */
+    --accent-moss-light: #2563eb; /* 亮蓝 */
+    --accent-moss-soft: rgba(30, 58, 138, 0.08);
     
-    --accent-caramel: #c98642;
-    --accent-caramel-soft: rgba(201, 134, 66, 0.1);
+    --accent-caramel: #d97706; /* 工程琥珀橙 */
+    --accent-caramel-soft: rgba(217, 119, 6, 0.09);
 
-    --accent-ink: #2f4e56; /* 深青墨 */
-    --accent-ink-soft: rgba(47, 78, 86, 0.1);
+    --accent-ink: #0284c7; /* 深青色 */
+    --accent-ink-soft: rgba(2, 132, 199, 0.09);
 
     /* Layout & Shadows */
     --radius-sm: 8px;
-    --radius-md: 16px;
-    --radius-lg: 24px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
     
-    --shadow-sm: 0 4px 12px rgba(45, 42, 38, 0.04);
-    --shadow-md: 0 12px 32px rgba(45, 42, 38, 0.08);
-    --shadow-float: 0 24px 64px rgba(45, 42, 38, 0.12);
+    --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.06);
+    --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+    --shadow-float: 0 20px 40px -12px rgba(15, 23, 42, 0.15);
     
     /* Transitions */
     --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
@@ -44,8 +44,12 @@
 }
 
 body {
-    font-family: 'Inter', 'Noto Sans SC', sans-serif;
+    font-family: 'Inter', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
     background-color: var(--bg-base);
+    background-image: 
+        linear-gradient(rgba(30, 58, 138, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(30, 58, 138, 0.03) 1px, transparent 1px);
+    background-size: 24px 24px;
     color: var(--text-primary);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
@@ -125,30 +129,37 @@ a {
     font-size: 0.9375rem;
     font-weight: 500;
     cursor: pointer;
-    transition: all var(--transition-base);
+    transition: all var(--transition-fast);
     border: 1px solid transparent;
+    user-select: none;
+}
+
+.btn:active:not(:disabled) {
+    transform: scale(0.98) translateY(1px) !important;
 }
 
 .btn-large {
-    padding: 0.875rem 2rem;
+    padding: 0.875rem 2.25rem;
     font-size: 1.0625rem;
     border-radius: var(--radius-md);
+    letter-spacing: 0.01em;
 }
 
 .btn-primary {
     background-color: var(--accent-moss);
     color: white;
-    box-shadow: 0 4px 12px rgba(93, 106, 76, 0.2);
+    box-shadow: 0 4px 14px rgba(30, 58, 138, 0.22);
 }
 .btn-primary:hover {
     background-color: var(--accent-moss-light);
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(93, 106, 76, 0.3);
+    box-shadow: 0 6px 18px rgba(30, 58, 138, 0.32);
 }
 .btn-primary:disabled {
-    opacity: 0.6;
+    opacity: 0.55;
     cursor: not-allowed;
     transform: none;
+    box-shadow: none;
 }
 
 .btn-outline {
@@ -176,7 +187,7 @@ a {
     cursor: not-allowed;
 }
 .btn-sm {
-    padding: 4px 12px;
+    padding: 5px 12px;
     font-size: 0.8125rem;
     border-radius: 6px;
 }
@@ -192,13 +203,13 @@ a {
     font-size: 0.8125rem;
     font-weight: 600;
     color: var(--text-secondary);
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     margin-bottom: 0.25rem;
 }
 .form-label .required {
     color: var(--accent-caramel);
-    margin-left: 2px;
+    margin-left: 3px;
 }
 .form-input, .form-textarea {
     width: 100%;
@@ -209,12 +220,14 @@ a {
     color: var(--text-primary);
     font-family: inherit;
     font-size: 0.9375rem;
+    font-variant-numeric: tabular-nums;
     transition: all var(--transition-fast);
+    box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.03);
 }
 .form-input:focus, .form-textarea:focus {
     outline: none;
     border-color: var(--accent-moss);
-    box-shadow: inset 0 1px 3px rgba(45, 42, 38, 0.05), 0 0 0 3px var(--accent-moss-soft);
+    box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.03), 0 0 0 3px var(--accent-moss-soft);
 }
 .form-textarea {
     min-height: 120px;

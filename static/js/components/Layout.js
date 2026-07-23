@@ -7,10 +7,10 @@ export default {
         const route = useRoute();
         
         const menuItems = [
-            { name: '首页', path: '/', icon: 'ri-home-5-line' },
-            { name: 'QoS卡片生成', path: '/qos', icon: 'ri-file-word-2-line' },
+            { name: '控制台首页', path: '/', icon: 'ri-dashboard-line' },
+            { name: 'QoS 卡片生成', path: '/qos', icon: 'ri-file-word-2-line' },
             { name: '互提资料生成', path: '/mutual-data', icon: 'ri-file-transfer-line' },
-            { name: '关于', path: '/about', icon: 'ri-information-line' }
+            { name: '关于与路线图', path: '/about', icon: 'ri-information-line' }
         ];
 
         return { store, route, menuItems };
@@ -21,8 +21,8 @@ export default {
             <aside class="sidebar" :class="{ 'sidebar-open': store.isSidebarOpen }">
                 <div class="sidebar-header">
                     <div class="logo">
-                        <i class="ri-box-3-fill"></i>
-                        <span v-if="store.isSidebarOpen">铁路通信设计辅助台</span>
+                        <i class="ri-pulse-fill text-moss"></i>
+                        <span v-if="store.isSidebarOpen" class="font-bold tracking-tight">铁路通信辅助设计</span>
                     </div>
                 </div>
                 <nav class="sidebar-nav">
@@ -39,8 +39,8 @@ export default {
                     </router-link>
                 </nav>
                 <div class="sidebar-footer">
-                    <button class="toggle-btn" @click="store.toggleSidebar()">
-                        <i :class="store.isSidebarOpen ? 'ri-arrow-left-s-line' : 'ri-arrow-right-s-line'"></i>
+                    <button class="toggle-btn" @click="store.toggleSidebar()" :title="store.isSidebarOpen ? '收起侧边栏' : '展开侧边栏'">
+                        <i :class="store.isSidebarOpen ? 'ri-indent-decrease' : 'ri-indent-increase'"></i>
                     </button>
                 </div>
             </aside>
@@ -49,12 +49,15 @@ export default {
             <main class="main-content" :class="{ 'content-expanded': !store.isSidebarOpen }">
                 <!-- Top Navbar -->
                 <header class="navbar">
-                    <div class="navbar-left">
-                        <h2 class="h2">{{ route.meta.title || '工具台' }}</h2>
+                    <div class="navbar-left flex items-center gap-3">
+                        <div class="flex items-center gap-2">
+                            <span class="inline-block w-2 h-2 rounded-full bg-moss animate-pulse"></span>
+                            <h2 class="h2 text-primary font-semibold tracking-tight">{{ route.meta.title || '工具台' }}</h2>
+                        </div>
                     </div>
-                    <div class="navbar-right">
-                        <button class="theme-toggle-btn" @click="store.toggleTheme()" :title="store.theme === 'blueprint' ? '切换为日间模式' : '切换为夜晚模式'">
-                            <i :class="store.theme === 'blueprint' ? 'ri-sun-line' : 'ri-moon-line'"></i>
+                    <div class="navbar-right flex items-center gap-3">
+                        <button class="theme-toggle-btn" @click="store.toggleTheme()" :title="store.theme === 'blueprint' ? '切换为工程日间模式' : '切换为蓝图夜晚模式'">
+                            <i :class="store.theme === 'blueprint' ? 'ri-sun-line text-amber-500' : 'ri-moon-clear-line text-cyan-400'"></i>
                             <span>{{ store.theme === 'blueprint' ? '日间' : '夜晚' }}</span>
                         </button>
                     </div>
@@ -68,3 +71,4 @@ export default {
         </div>
     `
 };
+
