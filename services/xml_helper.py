@@ -3,6 +3,9 @@
 XML 辅助处理模块
 封装所有直接操作 Word 底层 XML 结构的代码，以便与主要的渲染逻辑解耦。
 """
+from docx.oxml import parse_xml
+from docx.oxml.ns import nsdecls
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 from services.config_loader import settings
 
 def delete_block_paragraph(paragraph):
@@ -37,10 +40,54 @@ def find_paragraph_index(document, expected_text):
     return None
 
 
+def ensure_table_borders(table):
+    """确保表格具备完整的 Word 表格边框（w:tblBorders）"""
+    tblPr = table._tbl.tblPr
+    tblBorders = tblPr.find('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}tblBorders')
+    if tblBorders is None:
+        borders_xml = parse_xml(
+            r'<w:tblBorders %s>'
+            r'<w:top w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+            r'<w:left w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+            r'<w:bottom w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+            r'<w:right w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+            r'<w:insideH w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+            r'<w:insideV w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+            r'</w:tblBorders>' % nsdecls('w')
+        )
+        tblPr.append(borders_xml)
+
+
+def format_added_cell(cell, text=''):
+    """格式化动态添加的单元格：填充文本、设置居中对齐、垂直居中及显式框线"""
+    cell.text = str(text)
+    if cell.paragraphs:
+        cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    tcPr = cell._tc.get_or_add_tcPr()
+    vAlign = tcPr.find('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}vAlign')
+    if vAlign is None:
+        vAlign_xml = parse_xml(r'<w:vAlign %s w:val="center"/>' % nsdecls('w'))
+        tcPr.append(vAlign_xml)
+
+    tcBorders = tcPr.find('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}tcBorders')
+    if tcBorders is None:
+        borders_xml = parse_xml(
+            r'<w:tcBorders %s>'
+            r'<w:top w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+            r'<w:left w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+            r'<w:bottom w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+            r'<w:right w:val="single" w:sz="4" w:space="0" w:color="auto"/>'
+            r'</w:tcBorders>' % nsdecls('w')
+        )
+        tcPr.append(borders_xml)
+
+
 def apply_imported_table_block(document, config, payload):
     """
     根据前端导入的数据和配置，动态填充或者删除文档中的表格块。
     如果数据启用且存在行，则清空占位行并添加数据；如果禁用，则连同标题、注释物理删除。
+    包含表格框线和单元格样式的补齐逻辑。
     """
     title_idx = find_paragraph_index(document, config['title'])
     if title_idx is None:
@@ -67,13 +114,17 @@ def apply_imported_table_block(document, config, payload):
         delete_block_paragraph(document.paragraphs[title_idx])
         return
 
+    # 确保表格主体具有标准边框属性
+    ensure_table_borders(target_table)
+
     # 清空模板数据行（保留第一行表头）
     while len(target_table.rows) > 1:
         target_table._tbl.remove(target_table.rows[1]._tr)
 
-    # 按导入顺序填充数据行，序号自动编号
+    # 按导入顺序填充数据行，序号自动编号，并应用单元格边框与格式
     for index, row in enumerate(payload['rows'], start=1):
         cells = target_table.add_row().cells
-        cells[0].text = str(index)
+        format_added_cell(cells[0], str(index))
         for cell_index, key in enumerate(config['row_keys'], start=1):
-            cells[cell_index].text = str(row.get(key, '')).strip()
+            format_added_cell(cells[cell_index], str(row.get(key, '')).strip())
+
