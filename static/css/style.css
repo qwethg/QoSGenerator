@@ -1,8 +1,8 @@
 :root {
-    /* Color Palette: Technical Studio Light Mode (工程图纸日间风格) */
-    --bg-base: #f6f8fa; /* 整体图纸纸张背景 */
+    /* Color Palette: Gentle Technical Light Mode (柔和工程日间风格) */
+    --bg-base: #f2f4f7; /* 柔和舒适的暖灰图纸纸底 */
     --bg-surface: #ffffff; /* 卡片容器背景 */
-    --bg-surface-hover: #f1f5f9; 
+    --bg-surface-hover: #eef2f6; 
     
     --text-primary: #0f172a;
     --text-secondary: #475569;
@@ -46,10 +46,6 @@
 body {
     font-family: 'Inter', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
     background-color: var(--bg-base);
-    background-image: 
-        linear-gradient(rgba(30, 58, 138, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(30, 58, 138, 0.03) 1px, transparent 1px);
-    background-size: 24px 24px;
     color: var(--text-primary);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
@@ -1392,11 +1388,8 @@ a {
     --shadow-float: 0 24px 72px rgba(0, 0, 0, 0.8);
 }
 
-.blueprint-theme body {
-    background-image: 
-        linear-gradient(rgba(0, 180, 216, 0.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 180, 216, 0.035) 1px, transparent 1px);
-    background-size: 20px 20px;
+.blueprint-theme body,
+.blueprint-theme .main-content {
     background-color: var(--bg-base);
 }
 
