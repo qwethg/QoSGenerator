@@ -407,22 +407,28 @@ export default {
                             <input v-model="formData.project_name" type="text" class="form-input" placeholder="如：湛海高铁">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">设计阶段 <span class="required">*</span></label>
+                            <label class="form-label flex items-center gap-1">
+                                <span>设计阶段</span>
+                                <span class="required">*</span>
+                                <span class="info-tooltip-wrapper" title="目前只完成了施工图互提开发，其他阶段有待补充。" data-tooltip="目前只完成了施工图互提开发，其他阶段有待补充。">
+                                    <i class="ri-question-line info-tooltip-icon"></i>
+                                </span>
+                            </label>
                             <div class="radio-group mt-2" style="flex-wrap: nowrap; gap: 8px;">
                                 <label class="radio-label">
                                     <input v-model="formData.design_stage" type="radio" value="施工图">
                                     <span>施工图</span>
                                 </label>
                                 <label class="radio-label">
-                                    <input v-model="formData.design_stage" type="radio" value="初步设计">
+                                    <input v-model="formData.design_stage" type="radio" value="初步设计" disabled>
                                     <span>初步设计</span>
                                 </label>
                                 <label class="radio-label">
-                                    <input v-model="formData.design_stage" type="radio" value="可研">
+                                    <input v-model="formData.design_stage" type="radio" value="可研" disabled>
                                     <span>可研</span>
                                 </label>
                                 <label class="radio-label">
-                                    <input v-model="formData.design_stage" type="radio" value="预可研">
+                                    <input v-model="formData.design_stage" type="radio" value="预可研" disabled>
                                     <span>预可研</span>
                                 </label>
                             </div>

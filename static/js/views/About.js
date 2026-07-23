@@ -47,7 +47,7 @@ export default {
                     </div>
                     <div class="about-card-titles">
                         <h2 class="h3">关于</h2>
-                        <p class="about-card-subtitle">铁路通信工程设计小工具台</p>
+                        <p class="about-card-subtitle">铁路通信设计辅助台</p>
                     </div>
                 </div>
 
@@ -61,7 +61,7 @@ export default {
                 <div class="about-section about-section-vertical">
                     <h3 class="h4 about-section-title">简介</h3>
                     <p class="about-text">
-                        这是一个为铁路通信工程设计工作开发的辅助工具台，主要解决日常设计文档生成中重复、机械、容易出错的问题。
+                        这是一个为铁路通信设计工作开发的辅助台，主要解决日常设计文档生成中重复、机械、容易出错的问题。
                         目前聚焦在两类输出：QoS 审查/复核卡片，以及有线通信专业的互提资料 Word 文档。
                         通过 Web 表单填写项目信息，后端基于 Word 模板自动渲染，省去在 Word 中反复排版和复制粘贴的时间。
                     </p>

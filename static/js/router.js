@@ -9,7 +9,7 @@ const routes = [
         path: '/',
         name: 'Home',
         component: Home,
-        meta: { title: '首页 - 自动化工具台' }
+        meta: { title: '首页 - 铁路通信设计辅助台' }
     },
     {
         path: '/qos',
@@ -37,7 +37,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    document.title = to.meta.title || '铁路通信工程设计小工具台';
+    document.title = to.meta.title || '铁路通信设计辅助台';
     next();
 });
 

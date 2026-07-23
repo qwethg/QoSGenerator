@@ -32,7 +32,7 @@ export default {
     template: `
         <div class="home-view">
             <div class="welcome-section">
-                <h1 class="h1">欢迎使用工程设计自动化工具台</h1>
+                <h1 class="h1">欢迎使用铁路通信设计辅助台</h1>
                 <p class="text-body text-secondary mt-2">选择下方工具开始您的工作，大幅提升文档生成效率。</p>
             </div>
             
